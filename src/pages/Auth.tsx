@@ -64,6 +64,14 @@ const Auth = () => {
             <Button type="submit" className="w-full bg-gradient-primary">
               {isLogin ? "Sign in" : "Start free trial"}
             </Button>
+            <Button 
+              type="button" 
+              variant="outline" 
+              className="w-full"
+              onClick={() => navigate("/dashboard")}
+            >
+              Try Demo
+            </Button>
             <div className="text-center text-sm text-muted-foreground">
               {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
               <button
