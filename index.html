@@ -3,9 +3,17 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0D9488" />
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="icon" href="/icon-192.png" type="image/png" />
+    <link rel="apple-touch-icon" href="/icon-192.png" />
     <title>SpendSmart - Smart Personal Finance Tracker</title>
     <meta name="description" content="Track every dinar with SpendSmart - Fast, secure personal finance management with smart insights and budget tracking" />
     <meta name="author" content="SpendSmart" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="SpendSmart" />
 
     <meta property="og:title" content="SpendSmart - Smart Personal Finance Tracker" />
     <meta property="og:description" content="Take control of your finances with lightning-fast transaction tracking and smart spending insights" />
@@ -20,5 +28,12 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js');
+        });
+      }
+    </script>
   </body>
 </html>
