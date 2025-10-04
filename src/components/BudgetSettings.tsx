@@ -45,27 +45,27 @@ export const BudgetSettings = ({ monthlyIncome, salaryDate, onSave }: BudgetSett
 
   return (
     <Card className="shadow-card">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Settings className="w-5 h-5 text-primary" />
+      <CardHeader className="p-4 sm:p-6">
+        <CardTitle className="flex items-center gap-2 text-lg sm:text-2xl">
+          <Settings className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
           Budget Settings
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-3 sm:space-y-4 p-4 sm:p-6 pt-0">
         <div className="space-y-2">
-          <Label htmlFor="monthly-income">Monthly Income (KWD)</Label>
+          <Label htmlFor="monthly-income" className="text-sm">Monthly Income (KWD)</Label>
           <Input
             id="monthly-income"
             type="number"
             value={income}
             onChange={(e) => setIncome(parseFloat(e.target.value) || 0)}
             placeholder="Enter your monthly income"
-            className="text-lg"
+            className="text-base sm:text-lg"
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="salary-date">Salary Deposit Date (1-31)</Label>
+          <Label htmlFor="salary-date" className="text-sm">Salary Deposit Date (1-31)</Label>
           <Input
             id="salary-date"
             type="number"

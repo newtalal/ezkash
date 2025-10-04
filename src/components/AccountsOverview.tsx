@@ -39,30 +39,30 @@ export const AccountsOverview = () => {
   const spendableBalance = accounts[0].balance + accounts[1].balance;
 
   return (
-    <Card className="shadow-card sticky top-24">
-      <CardHeader>
-        <CardTitle>Accounts</CardTitle>
+    <Card className="shadow-card md:sticky md:top-20">
+      <CardHeader className="p-4 sm:p-6">
+        <CardTitle className="text-lg sm:text-2xl">Accounts</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="p-4 rounded-xl bg-gradient-primary text-primary-foreground">
-          <p className="text-sm opacity-90 mb-1">Total Spendable</p>
-          <p className="text-3xl font-bold">{spendableBalance.toFixed(3)} KWD</p>
-          <p className="text-xs opacity-75 mt-1">Current + Credit</p>
+      <CardContent className="space-y-3 sm:space-y-4 p-4 sm:p-6 pt-0">
+        <div className="p-3 sm:p-4 rounded-xl bg-gradient-primary text-primary-foreground">
+          <p className="text-xs sm:text-sm opacity-90 mb-1">Total Spendable</p>
+          <p className="text-2xl sm:text-3xl font-bold">{spendableBalance.toFixed(3)} KWD</p>
+          <p className="text-[10px] sm:text-xs opacity-75 mt-1">Current + Credit</p>
         </div>
 
-        <div className="space-y-3">
+        <div className="space-y-2 sm:space-y-3">
           {accounts.map((account) => (
             <div
               key={account.name}
-              className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
+              className="flex items-center justify-between p-2.5 sm:p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
             >
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 sm:gap-3">
                 <div className={`${account.color}`}>{account.icon}</div>
                 <div>
-                  <p className="font-medium text-sm">{account.name}</p>
+                  <p className="font-medium text-xs sm:text-sm">{account.name}</p>
                 </div>
               </div>
-              <p className="font-semibold">{account.balance.toFixed(3)}</p>
+              <p className="font-semibold text-sm sm:text-base">{account.balance.toFixed(3)}</p>
             </div>
           ))}
         </div>
