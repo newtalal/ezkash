@@ -39,7 +39,7 @@ export const AccountsOverview = () => {
   const spendableBalance = accounts[0].balance + accounts[1].balance;
 
   return (
-    <Card className="shadow-card md:sticky md:top-20">
+    <Card className="shadow-card xl:sticky xl:top-20">
       <CardHeader className="p-4 sm:p-6">
         <CardTitle className="text-lg sm:text-2xl">Accounts</CardTitle>
       </CardHeader>
