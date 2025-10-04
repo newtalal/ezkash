@@ -108,11 +108,18 @@ export const TransactionEntry = ({ onAddTransaction }: TransactionEntryProps) =>
             <Label htmlFor="amount" className="text-sm">Amount (KWD)</Label>
             <Input
               id="amount"
-              type="number"
-              step="0.01"
+              type="text"
+              inputMode="decimal"
+              pattern="[0-9]*\.?[0-9]*"
               placeholder="0.00"
               value={amount}
-              onChange={(e) => setAmount(e.target.value)}
+              onChange={(e) => {
+                const value = e.target.value;
+                // Only allow numbers and one decimal point
+                if (value === '' || /^\d*\.?\d{0,3}$/.test(value)) {
+                  setAmount(value);
+                }
+              }}
               className="text-xl sm:text-2xl font-semibold h-12 sm:h-14"
               required
             />
