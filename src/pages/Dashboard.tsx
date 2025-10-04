@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { TransactionEntry } from "@/components/TransactionEntry";
 import { TransactionList } from "@/components/TransactionList";
 import { AccountsOverview } from "@/components/AccountsOverview";
 import { DashboardNav } from "@/components/DashboardNav";
 import { SpendingPower } from "@/components/SpendingPower";
+import { BudgetSettings } from "@/components/BudgetSettings";
 
 export interface Transaction {
   id: string;
@@ -16,6 +17,16 @@ export interface Transaction {
 }
 
 const Dashboard = () => {
+  const [monthlyIncome, setMonthlyIncome] = useState(() => {
+    const saved = localStorage.getItem("monthlyIncome");
+    return saved ? parseFloat(saved) : 1500;
+  });
+
+  const [salaryDate, setSalaryDate] = useState(() => {
+    const saved = localStorage.getItem("salaryDate");
+    return saved ? parseInt(saved) : 20;
+  });
+
   const [transactions, setTransactions] = useState<Transaction[]>([
     {
       id: "1",
@@ -37,6 +48,16 @@ const Dashboard = () => {
     },
   ]);
 
+  useEffect(() => {
+    localStorage.setItem("monthlyIncome", monthlyIncome.toString());
+    localStorage.setItem("salaryDate", salaryDate.toString());
+  }, [monthlyIncome, salaryDate]);
+
+  const handleSaveBudget = (income: number, date: number) => {
+    setMonthlyIncome(income);
+    setSalaryDate(date);
+  };
+
   const addTransaction = (transaction: Omit<Transaction, "id">) => {
     const newTransaction = {
       ...transaction,
@@ -51,9 +72,21 @@ const Dashboard = () => {
       <main className="container mx-auto px-4 py-6 max-w-7xl space-y-6">
         <div className="grid gap-6 lg:grid-cols-3">
           <div className="lg:col-span-2 space-y-6">
+            <BudgetSettings 
+              monthlyIncome={monthlyIncome}
+              salaryDate={salaryDate}
+              onSave={handleSaveBudget}
+            />
             <TransactionEntry onAddTransaction={addTransaction} />
-            <SpendingPower transactions={transactions} />
-            <TransactionList transactions={transactions} />
+            <SpendingPower 
+              transactions={transactions} 
+              monthlyIncome={monthlyIncome}
+              salaryDate={salaryDate}
+            />
+            <TransactionList 
+              transactions={transactions}
+              salaryDate={salaryDate}
+            />
           </div>
           <div>
             <AccountsOverview />

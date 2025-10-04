@@ -10,17 +10,21 @@ import {
 import { Transaction } from "@/pages/Dashboard";
 import { format } from "date-fns";
 import { Receipt } from "lucide-react";
+import { getCurrentCycle } from "@/lib/cycleUtils";
 
 interface TransactionListProps {
   transactions: Transaction[];
+  salaryDate: number;
 }
 
-export const TransactionList = ({ transactions }: TransactionListProps) => {
-  const todayTransactions = transactions.filter(
-    (t) => format(t.date, "yyyy-MM-dd") === format(new Date(), "yyyy-MM-dd")
-  );
+export const TransactionList = ({ transactions, salaryDate }: TransactionListProps) => {
+  const { startDate, endDate } = getCurrentCycle(salaryDate);
+  
+  const cycleTransactions = transactions
+    .filter((t) => t.date >= startDate && t.date <= endDate)
+    .sort((a, b) => b.date.getTime() - a.date.getTime());
 
-  const totalSpentToday = todayTransactions
+  const totalSpentThisCycle = cycleTransactions
     .filter((t) => t.type === "expense")
     .reduce((sum, t) => sum + t.amount, 0);
 
@@ -30,27 +34,28 @@ export const TransactionList = ({ transactions }: TransactionListProps) => {
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
             <Receipt className="w-5 h-5 text-primary" />
-            Today's Transactions
+            This Cycle's Transactions
           </CardTitle>
           <div className="text-right">
             <p className="text-sm text-muted-foreground">Total Spent</p>
             <p className="text-2xl font-bold text-destructive">
-              {totalSpentToday.toFixed(3)} KWD
+              {totalSpentThisCycle.toFixed(3)} KWD
             </p>
           </div>
         </div>
       </CardHeader>
       <CardContent>
-        {todayTransactions.length === 0 ? (
+        {cycleTransactions.length === 0 ? (
           <div className="text-center py-12 text-muted-foreground">
             <Receipt className="w-12 h-12 mx-auto mb-3 opacity-20" />
-            <p>No transactions today</p>
+            <p>No transactions this cycle</p>
           </div>
         ) : (
           <div className="rounded-lg border border-border overflow-hidden">
             <Table>
               <TableHeader>
                 <TableRow className="bg-muted/50">
+                  <TableHead>Date</TableHead>
                   <TableHead>Category</TableHead>
                   <TableHead>Description</TableHead>
                   <TableHead>Payment</TableHead>
@@ -58,8 +63,11 @@ export const TransactionList = ({ transactions }: TransactionListProps) => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {todayTransactions.map((transaction) => (
+                {cycleTransactions.map((transaction) => (
                   <TableRow key={transaction.id} className="hover:bg-accent/50">
+                    <TableCell className="text-sm text-muted-foreground">
+                      {format(transaction.date, "MMM d")}
+                    </TableCell>
                     <TableCell className="font-medium">
                       {transaction.category}
                     </TableCell>
