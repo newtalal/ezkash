@@ -118,11 +118,13 @@ All colors MUST be HSL.
     @apply border-border;
   }
 
-  html, body {
-    @apply h-full;
+  html, body, #root {
+    @apply h-full max-w-[100vw];
   }
 
   body {
     @apply bg-background text-foreground overflow-x-hidden;
+    overscroll-behavior-x: none;
+    touch-action: pan-y;
   }
 }
