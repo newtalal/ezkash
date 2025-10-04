@@ -52,45 +52,47 @@ export const TransactionList = ({ transactions, salaryDate }: TransactionListPro
           </div>
         ) : (
           <div className="rounded-lg border border-border overflow-hidden">
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-muted/50">
-                  <TableHead>Date</TableHead>
-                  <TableHead>Category</TableHead>
-                  <TableHead>Description</TableHead>
-                  <TableHead>Payment</TableHead>
-                  <TableHead className="text-right">Amount</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {cycleTransactions.map((transaction) => (
-                  <TableRow key={transaction.id} className="hover:bg-accent/50">
-                    <TableCell className="text-sm text-muted-foreground">
-                      {format(transaction.date, "MMM d")}
-                    </TableCell>
-                    <TableCell className="font-medium">
-                      {transaction.category}
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {transaction.description || "-"}
-                    </TableCell>
-                    <TableCell className="text-sm">
-                      {transaction.paymentMethod}
-                    </TableCell>
-                    <TableCell
-                      className={`text-right font-semibold ${
-                        transaction.type === "income"
-                          ? "text-success"
-                          : "text-destructive"
-                      }`}
-                    >
-                      {transaction.type === "income" ? "+" : "-"}
-                      {transaction.amount.toFixed(3)} KWD
-                    </TableCell>
+            <div className="w-full overflow-x-auto">
+              <Table className="w-full">
+                <TableHeader>
+                  <TableRow className="bg-muted/50">
+                    <TableHead>Date</TableHead>
+                    <TableHead>Category</TableHead>
+                    <TableHead>Description</TableHead>
+                    <TableHead>Payment</TableHead>
+                    <TableHead className="text-right">Amount</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {cycleTransactions.map((transaction) => (
+                    <TableRow key={transaction.id} className="hover:bg-accent/50">
+                      <TableCell className="text-sm text-muted-foreground">
+                        {format(transaction.date, "MMM d")}
+                      </TableCell>
+                      <TableCell className="font-medium">
+                        {transaction.category}
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {transaction.description || "-"}
+                      </TableCell>
+                      <TableCell className="text-sm">
+                        {transaction.paymentMethod}
+                      </TableCell>
+                      <TableCell
+                        className={`text-right font-semibold ${
+                          transaction.type === "income"
+                            ? "text-success"
+                            : "text-destructive"
+                        }`}
+                      >
+                        {transaction.type === "income" ? "+" : "-"}
+                        {transaction.amount.toFixed(3)} KWD
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           </div>
         )}
       </CardContent>
