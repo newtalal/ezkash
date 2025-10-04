@@ -20,17 +20,17 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
+    <div className="min-h-screen flex items-center justify-center bg-background p-3 sm:p-4">
       <Card className="w-full max-w-md shadow-elevated">
-        <CardHeader className="space-y-4 text-center">
-          <div className="mx-auto w-16 h-16 bg-gradient-primary rounded-2xl flex items-center justify-center shadow-lg">
-            <Wallet className="w-8 h-8 text-primary-foreground" />
+        <CardHeader className="space-y-3 sm:space-y-4 text-center">
+          <div className="mx-auto w-14 h-14 sm:w-16 sm:h-16 bg-gradient-primary rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg">
+            <Wallet className="w-7 h-7 sm:w-8 sm:h-8 text-primary-foreground" />
           </div>
           <div>
-            <CardTitle className="text-2xl font-bold">
+            <CardTitle className="text-xl sm:text-2xl font-bold">
               {isLogin ? "Welcome back" : "Get started"}
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-sm">
               {isLogin
                 ? "Sign in to continue tracking your finances"
                 : "Start your 7-day free trial"}
