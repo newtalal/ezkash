@@ -17,7 +17,7 @@ export const DashboardNav = () => {
 
   return (
     <header className="border-b border-border bg-card sticky top-0 z-50 shadow-card">
-      <div className="container mx-auto px-3 sm:px-4">
+      <div className="w-full max-w-7xl mx-auto px-3 sm:px-4">
         <div className="flex items-center justify-between h-14 sm:h-16">
           <div className="flex items-center gap-2 sm:gap-3">
             <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-primary rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg">
