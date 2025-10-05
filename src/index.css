@@ -128,3 +128,7 @@ All colors MUST be HSL.
     touch-action: pan-y;
   }
 }
+
+@layer utilities {
+  .min-h-dvh { min-height: 100dvh; }
+}
