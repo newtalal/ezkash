@@ -131,4 +131,13 @@ All colors MUST be HSL.
 
 @layer utilities {
   .min-h-dvh { min-height: 100dvh; }
+  
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
 }

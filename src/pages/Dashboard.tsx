@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
-import { TransactionEntry } from "@/components/TransactionEntry";
-import { TransactionList } from "@/components/TransactionList";
-import { AccountsOverview } from "@/components/AccountsOverview";
 import { DashboardNav } from "@/components/DashboardNav";
 import { SpendingPower } from "@/components/SpendingPower";
-import { BudgetSettings } from "@/components/BudgetSettings";
+import { TransactionList } from "@/components/TransactionList";
+import { NavigationTabs } from "@/components/NavigationTabs";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { TrendingUp, TrendingDown, Wallet } from "lucide-react";
 
 export interface Transaction {
   id: string;
@@ -27,71 +27,116 @@ const Dashboard = () => {
     return saved ? parseInt(saved) : 20;
   });
 
-  const [transactions, setTransactions] = useState<Transaction[]>([
-    {
-      id: "1",
-      type: "expense",
-      amount: 25.50,
-      category: "🍕 Food",
-      description: "Lunch at restaurant",
-      paymentMethod: "Credit Card",
-      date: new Date(),
-    },
-    {
-      id: "2",
-      type: "income",
-      amount: 1000,
-      category: "💰 Salary",
-      description: "Monthly salary",
-      paymentMethod: "Current Account",
-      date: new Date(),
-    },
-  ]);
+  const [transactions, setTransactions] = useState<Transaction[]>(() => {
+    const saved = localStorage.getItem("transactions");
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      return parsed.map((t: any) => ({
+        ...t,
+        date: new Date(t.date)
+      }));
+    }
+    return [
+      {
+        id: "1",
+        type: "expense",
+        amount: 25.50,
+        category: "🍕 Food",
+        description: "Lunch at restaurant",
+        paymentMethod: "Credit Card",
+        date: new Date(),
+      },
+      {
+        id: "2",
+        type: "income",
+        amount: 1000,
+        category: "💰 Salary",
+        description: "Monthly salary",
+        paymentMethod: "Current Account",
+        date: new Date(),
+      },
+    ];
+  });
 
   useEffect(() => {
     localStorage.setItem("monthlyIncome", monthlyIncome.toString());
     localStorage.setItem("salaryDate", salaryDate.toString());
-  }, [monthlyIncome, salaryDate]);
+    localStorage.setItem("transactions", JSON.stringify(transactions));
+  }, [monthlyIncome, salaryDate, transactions]);
 
-  const handleSaveBudget = (income: number, date: number) => {
-    setMonthlyIncome(income);
-    setSalaryDate(date);
-  };
+  // Calculate summary stats
+  const totalIncome = transactions
+    .filter(t => t.type === "income")
+    .reduce((sum, t) => sum + t.amount, 0);
+  
+  const totalExpenses = transactions
+    .filter(t => t.type === "expense")
+    .reduce((sum, t) => sum + t.amount, 0);
 
-  const addTransaction = (transaction: Omit<Transaction, "id">) => {
-    const newTransaction = {
-      ...transaction,
-      id: Date.now().toString(),
-    };
-    setTransactions([newTransaction, ...transactions]);
-  };
+  const balance = totalIncome - totalExpenses;
 
   return (
     <div className="min-h-dvh bg-background w-full max-w-full overflow-x-hidden pb-[calc(env(safe-area-inset-bottom)+16px)]">
       <DashboardNav />
+      <NavigationTabs />
       <main className="w-full max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-6">
-        <div className="grid gap-4 sm:gap-6 md:grid-cols-2 xl:grid-cols-3">
-          <div className="md:col-span-2 xl:col-span-2 space-y-4 sm:space-y-6">
-            <BudgetSettings 
-              monthlyIncome={monthlyIncome}
-              salaryDate={salaryDate}
-              onSave={handleSaveBudget}
-            />
-            <TransactionEntry onAddTransaction={addTransaction} />
-            <SpendingPower 
-              transactions={transactions} 
-              monthlyIncome={monthlyIncome}
-              salaryDate={salaryDate}
-            />
-            <TransactionList 
-              transactions={transactions}
-              salaryDate={salaryDate}
-            />
-          </div>
-          <div>
-            <AccountsOverview />
-          </div>
+        {/* Summary Cards */}
+        <div className="grid gap-4 sm:gap-6 md:grid-cols-3">
+          <Card className="shadow-card">
+            <CardHeader className="p-4 sm:p-6">
+              <CardTitle className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                <TrendingUp className="w-4 h-4 text-success" />
+                Total Income
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-4 sm:p-6 pt-0">
+              <div className="text-2xl sm:text-3xl font-bold text-success">
+                {totalIncome.toFixed(3)} KWD
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="shadow-card">
+            <CardHeader className="p-4 sm:p-6">
+              <CardTitle className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                <TrendingDown className="w-4 h-4 text-destructive" />
+                Total Expenses
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-4 sm:p-6 pt-0">
+              <div className="text-2xl sm:text-3xl font-bold text-destructive">
+                {totalExpenses.toFixed(3)} KWD
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="shadow-card">
+            <CardHeader className="p-4 sm:p-6">
+              <CardTitle className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                <Wallet className="w-4 h-4 text-primary" />
+                Balance
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-4 sm:p-6 pt-0">
+              <div className={`text-2xl sm:text-3xl font-bold ${balance >= 0 ? 'text-success' : 'text-destructive'}`}>
+                {balance.toFixed(3)} KWD
+              </div>
+            </CardContent>
+          </Card>
         </div>
+
+        {/* Spending Power */}
+        <SpendingPower 
+          transactions={transactions} 
+          monthlyIncome={monthlyIncome}
+          salaryDate={salaryDate}
+        />
+
+        {/* Recent Transactions */}
+        <TransactionList 
+          transactions={transactions.slice(0, 10)}
+          salaryDate={salaryDate}
+        />
       </main>
     </div>
   );
