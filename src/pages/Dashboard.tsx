@@ -120,19 +120,6 @@ const Dashboard = () => {
             </CardContent>
           </Card>
 
-          <Card className="shadow-card">
-            <CardHeader className="p-4 sm:p-6">
-              <CardTitle className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-                <Wallet className="w-4 h-4 text-primary" />
-                Balance
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-4 sm:p-6 pt-0">
-              <div className={`text-2xl sm:text-3xl font-bold ${balance >= 0 ? 'text-success' : 'text-destructive'}`}>
-                {balance.toFixed(3)} KWD
-              </div>
-            </CardContent>
-          </Card>
         </div>
 
         {/* Spending Power */}
