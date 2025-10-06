@@ -4,7 +4,8 @@ import { SpendingPower } from "@/components/SpendingPower";
 import { TransactionList } from "@/components/TransactionList";
 import { NavigationTabs } from "@/components/NavigationTabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { TrendingUp, TrendingDown, Wallet } from "lucide-react";
+import { TrendingDown, Wallet } from "lucide-react";
+import { Account } from "@/components/AccountsOverview";
 
 export interface Transaction {
   id: string;
@@ -58,6 +59,14 @@ const Dashboard = () => {
     ];
   });
 
+  const [accounts, setAccounts] = useState<Account[]>(() => {
+    const saved = localStorage.getItem("accounts");
+    if (saved) {
+      return JSON.parse(saved);
+    }
+    return [];
+  });
+
   useEffect(() => {
     localStorage.setItem("monthlyIncome", monthlyIncome.toString());
     localStorage.setItem("salaryDate", salaryDate.toString());
@@ -65,15 +74,15 @@ const Dashboard = () => {
   }, [monthlyIncome, salaryDate, transactions]);
 
   // Calculate summary stats
-  const totalIncome = transactions
-    .filter(t => t.type === "income")
-    .reduce((sum, t) => sum + t.amount, 0);
+  const totalSpendable = accounts
+    .filter(account => account.isSpendable)
+    .reduce((sum, account) => sum + account.balance, 0);
   
   const totalExpenses = transactions
     .filter(t => t.type === "expense")
     .reduce((sum, t) => sum + t.amount, 0);
 
-  const balance = totalIncome - totalExpenses;
+  const balance = totalSpendable - totalExpenses;
 
   return (
     <div className="min-h-dvh bg-background w-full max-w-full overflow-x-hidden pb-[calc(env(safe-area-inset-bottom)+16px)]">
@@ -82,6 +91,21 @@ const Dashboard = () => {
       <main className="w-full max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-6">
         {/* Summary Cards */}
         <div className="grid gap-4 sm:gap-6 md:grid-cols-2">
+          <Card className="shadow-card">
+            <CardHeader className="p-4 sm:p-6">
+              <CardTitle className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                <Wallet className="w-4 h-4 text-primary" />
+                Total Spendable
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-4 sm:p-6 pt-0">
+              <div className="text-2xl sm:text-3xl font-bold text-primary">
+                {totalSpendable.toFixed(3)} KWD
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">From active accounts</p>
+            </CardContent>
+          </Card>
+
           <Card className="shadow-card">
             <CardHeader className="p-4 sm:p-6">
               <CardTitle className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
