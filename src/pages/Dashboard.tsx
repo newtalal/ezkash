@@ -81,21 +81,7 @@ const Dashboard = () => {
       <NavigationTabs />
       <main className="w-full max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-6">
         {/* Summary Cards */}
-        <div className="grid gap-4 sm:gap-6 md:grid-cols-3">
-          <Card className="shadow-card">
-            <CardHeader className="p-4 sm:p-6">
-              <CardTitle className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-                <TrendingUp className="w-4 h-4 text-success" />
-                Total Income
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-4 sm:p-6 pt-0">
-              <div className="text-2xl sm:text-3xl font-bold text-success">
-                {totalIncome.toFixed(3)} KWD
-              </div>
-            </CardContent>
-          </Card>
-
+        <div className="grid gap-4 sm:gap-6 md:grid-cols-2">
           <Card className="shadow-card">
             <CardHeader className="p-4 sm:p-6">
               <CardTitle className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
