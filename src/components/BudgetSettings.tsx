@@ -7,28 +7,17 @@ import { Settings } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface BudgetSettingsProps {
-  monthlyIncome: number;
   monthlyBudget: number;
   salaryDate: number;
-  onSave: (income: number, budget: number, date: number) => void;
+  onSave: (budget: number, date: number) => void;
 }
 
-export const BudgetSettings = ({ monthlyIncome, monthlyBudget, salaryDate, onSave }: BudgetSettingsProps) => {
-  const [income, setIncome] = useState(monthlyIncome);
+export const BudgetSettings = ({ monthlyBudget, salaryDate, onSave }: BudgetSettingsProps) => {
   const [budget, setBudget] = useState(monthlyBudget);
   const [date, setDate] = useState(salaryDate);
   const { toast } = useToast();
 
   const handleSave = () => {
-    if (income <= 0) {
-      toast({
-        title: "Invalid Income",
-        description: "Please enter a valid monthly income",
-        variant: "destructive",
-      });
-      return;
-    }
-
     if (budget <= 0) {
       toast({
         title: "Invalid Budget",
@@ -47,7 +36,7 @@ export const BudgetSettings = ({ monthlyIncome, monthlyBudget, salaryDate, onSav
       return;
     }
 
-    onSave(income, budget, date);
+    onSave(budget, date);
     toast({
       title: "Budget Settings Saved",
       description: "Your monthly budget has been updated",
@@ -63,18 +52,6 @@ export const BudgetSettings = ({ monthlyIncome, monthlyBudget, salaryDate, onSav
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3 sm:space-y-4 p-4 sm:p-6 pt-0">
-        <div className="space-y-2">
-          <Label htmlFor="monthly-income" className="text-sm">Monthly Income (KWD)</Label>
-          <Input
-            id="monthly-income"
-            type="number"
-            value={income}
-            onChange={(e) => setIncome(parseFloat(e.target.value) || 0)}
-            placeholder="Enter your monthly income"
-            className="text-base sm:text-lg"
-          />
-        </div>
-
         <div className="space-y-2">
           <Label htmlFor="monthly-budget" className="text-sm">Monthly Budget (KWD)</Label>
           <Input
