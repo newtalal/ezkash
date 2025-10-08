@@ -10,6 +10,11 @@ const Settings = () => {
     return saved ? parseFloat(saved) : 1500;
   });
 
+  const [monthlyBudget, setMonthlyBudget] = useState(() => {
+    const saved = localStorage.getItem("monthlyBudget");
+    return saved ? parseFloat(saved) : 1500;
+  });
+
   const [salaryDate, setSalaryDate] = useState(() => {
     const saved = localStorage.getItem("salaryDate");
     return saved ? parseInt(saved) : 20;
@@ -17,11 +22,13 @@ const Settings = () => {
 
   useEffect(() => {
     localStorage.setItem("monthlyIncome", monthlyIncome.toString());
+    localStorage.setItem("monthlyBudget", monthlyBudget.toString());
     localStorage.setItem("salaryDate", salaryDate.toString());
-  }, [monthlyIncome, salaryDate]);
+  }, [monthlyIncome, monthlyBudget, salaryDate]);
 
-  const handleSaveBudget = (income: number, date: number) => {
+  const handleSaveBudget = (income: number, budget: number, date: number) => {
     setMonthlyIncome(income);
+    setMonthlyBudget(budget);
     setSalaryDate(date);
   };
 
@@ -33,6 +40,7 @@ const Settings = () => {
         <div className="grid gap-4 sm:gap-6 md:grid-cols-2">
           <BudgetSettings 
             monthlyIncome={monthlyIncome}
+            monthlyBudget={monthlyBudget}
             salaryDate={salaryDate}
             onSave={handleSaveBudget}
           />

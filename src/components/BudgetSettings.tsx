@@ -8,12 +8,14 @@ import { useToast } from "@/hooks/use-toast";
 
 interface BudgetSettingsProps {
   monthlyIncome: number;
+  monthlyBudget: number;
   salaryDate: number;
-  onSave: (income: number, date: number) => void;
+  onSave: (income: number, budget: number, date: number) => void;
 }
 
-export const BudgetSettings = ({ monthlyIncome, salaryDate, onSave }: BudgetSettingsProps) => {
+export const BudgetSettings = ({ monthlyIncome, monthlyBudget, salaryDate, onSave }: BudgetSettingsProps) => {
   const [income, setIncome] = useState(monthlyIncome);
+  const [budget, setBudget] = useState(monthlyBudget);
   const [date, setDate] = useState(salaryDate);
   const { toast } = useToast();
 
@@ -22,6 +24,15 @@ export const BudgetSettings = ({ monthlyIncome, salaryDate, onSave }: BudgetSett
       toast({
         title: "Invalid Income",
         description: "Please enter a valid monthly income",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (budget <= 0) {
+      toast({
+        title: "Invalid Budget",
+        description: "Please enter a valid monthly budget",
         variant: "destructive",
       });
       return;
@@ -36,7 +47,7 @@ export const BudgetSettings = ({ monthlyIncome, salaryDate, onSave }: BudgetSett
       return;
     }
 
-    onSave(income, date);
+    onSave(income, budget, date);
     toast({
       title: "Budget Settings Saved",
       description: "Your monthly budget has been updated",
@@ -62,6 +73,21 @@ export const BudgetSettings = ({ monthlyIncome, salaryDate, onSave }: BudgetSett
             placeholder="Enter your monthly income"
             className="text-base sm:text-lg"
           />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="monthly-budget" className="text-sm">Monthly Budget (KWD)</Label>
+          <Input
+            id="monthly-budget"
+            type="number"
+            value={budget}
+            onChange={(e) => setBudget(parseFloat(e.target.value) || 0)}
+            placeholder="Enter your monthly budget"
+            className="text-base sm:text-lg"
+          />
+          <p className="text-xs text-muted-foreground">
+            Set your spending limit for each cycle
+          </p>
         </div>
 
         <div className="space-y-2">

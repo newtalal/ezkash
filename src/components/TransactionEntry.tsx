@@ -41,7 +41,6 @@ const paymentMethods = [
 ];
 
 export const TransactionEntry = ({ onAddTransaction }: TransactionEntryProps) => {
-  const [type, setType] = useState<"income" | "expense">("expense");
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
@@ -56,7 +55,7 @@ export const TransactionEntry = ({ onAddTransaction }: TransactionEntryProps) =>
     }
 
     onAddTransaction({
-      type,
+      type: "expense",
       amount: parseFloat(amount),
       category,
       description,
@@ -83,27 +82,6 @@ export const TransactionEntry = ({ onAddTransaction }: TransactionEntryProps) =>
       </CardHeader>
       <CardContent className="p-4 sm:p-6 pt-0">
         <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
-          <div className="flex gap-2">
-            <Button
-              type="button"
-              variant={type === "expense" ? "default" : "outline"}
-              className={type === "expense" ? "flex-1 bg-destructive hover:bg-destructive/90 text-sm sm:text-base" : "flex-1 text-sm sm:text-base"}
-              onClick={() => setType("expense")}
-            >
-              <ArrowDownCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-              Expense
-            </Button>
-            <Button
-              type="button"
-              variant={type === "income" ? "default" : "outline"}
-              className={type === "income" ? "flex-1 bg-success hover:bg-success/90 text-sm sm:text-base" : "flex-1 text-sm sm:text-base"}
-              onClick={() => setType("income")}
-            >
-              <ArrowUpCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-              Income
-            </Button>
-          </div>
-
           <div className="space-y-2">
             <Label htmlFor="amount" className="text-sm">Amount (KWD)</Label>
             <Input
