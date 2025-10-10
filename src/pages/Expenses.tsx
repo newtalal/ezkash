@@ -3,6 +3,7 @@ import { DashboardNav } from "@/components/DashboardNav";
 import { NavigationTabs } from "@/components/NavigationTabs";
 import { TransactionEntry } from "@/components/TransactionEntry";
 import { TransactionList } from "@/components/TransactionList";
+import { useToast } from "@/hooks/use-toast";
 
 export interface Transaction {
   id: string;
@@ -15,6 +16,7 @@ export interface Transaction {
 }
 
 const Expenses = () => {
+  const { toast } = useToast();
   const [salaryDate] = useState(() => {
     const saved = localStorage.getItem("salaryDate");
     return saved ? parseInt(saved) : 20;
@@ -63,6 +65,14 @@ const Expenses = () => {
     setTransactions([newTransaction, ...transactions]);
   };
 
+  const deleteTransaction = (id: string) => {
+    setTransactions(transactions.filter(t => t.id !== id));
+    toast({
+      title: "Transaction Deleted",
+      description: "The transaction has been removed successfully",
+    });
+  };
+
   return (
     <div className="min-h-dvh bg-background w-full max-w-full overflow-x-hidden pb-[calc(env(safe-area-inset-bottom)+16px)]">
       <DashboardNav />
@@ -72,6 +82,7 @@ const Expenses = () => {
         <TransactionList 
           transactions={transactions}
           salaryDate={salaryDate}
+          onDelete={deleteTransaction}
         />
       </main>
     </div>

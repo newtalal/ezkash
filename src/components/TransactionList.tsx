@@ -7,17 +7,19 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
 import { Transaction } from "@/pages/Dashboard";
 import { format } from "date-fns";
-import { Receipt } from "lucide-react";
+import { Receipt, Trash2 } from "lucide-react";
 import { getCurrentCycle } from "@/lib/cycleUtils";
 
 interface TransactionListProps {
   transactions: Transaction[];
   salaryDate: number;
+  onDelete: (id: string) => void;
 }
 
-export const TransactionList = ({ transactions, salaryDate }: TransactionListProps) => {
+export const TransactionList = ({ transactions, salaryDate, onDelete }: TransactionListProps) => {
   const { startDate, endDate } = getCurrentCycle(salaryDate);
   
   const cycleTransactions = transactions
@@ -61,6 +63,7 @@ export const TransactionList = ({ transactions, salaryDate }: TransactionListPro
                     <TableHead>Description</TableHead>
                     <TableHead>Payment</TableHead>
                     <TableHead className="text-right">Amount</TableHead>
+                    <TableHead className="w-[50px]"></TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -87,6 +90,16 @@ export const TransactionList = ({ transactions, salaryDate }: TransactionListPro
                       >
                         {transaction.type === "income" ? "+" : "-"}
                         {transaction.amount.toFixed(3)} KWD
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => onDelete(transaction.id)}
+                          className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}

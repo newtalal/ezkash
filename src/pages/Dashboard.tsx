@@ -6,6 +6,7 @@ import { NavigationTabs } from "@/components/NavigationTabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TrendingDown, Wallet } from "lucide-react";
 import { Account } from "@/components/AccountsOverview";
+import { useToast } from "@/hooks/use-toast";
 
 export interface Transaction {
   id: string;
@@ -18,6 +19,7 @@ export interface Transaction {
 }
 
 const Dashboard = () => {
+  const { toast } = useToast();
   const [monthlyIncome, setMonthlyIncome] = useState(() => {
     const saved = localStorage.getItem("monthlyIncome");
     return saved ? parseFloat(saved) : 1500;
@@ -72,6 +74,14 @@ const Dashboard = () => {
     localStorage.setItem("salaryDate", salaryDate.toString());
     localStorage.setItem("transactions", JSON.stringify(transactions));
   }, [monthlyIncome, salaryDate, transactions]);
+
+  const deleteTransaction = (id: string) => {
+    setTransactions(transactions.filter(t => t.id !== id));
+    toast({
+      title: "Transaction Deleted",
+      description: "The transaction has been removed successfully",
+    });
+  };
 
   // Calculate summary stats
   const totalSpendable = accounts
@@ -133,6 +143,7 @@ const Dashboard = () => {
         <TransactionList 
           transactions={transactions.slice(0, 10)}
           salaryDate={salaryDate}
+          onDelete={deleteTransaction}
         />
       </main>
     </div>
