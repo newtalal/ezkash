@@ -1,7 +1,7 @@
 {
-  "name": "SpendSmart - Personal Finance Tracker",
-  "short_name": "SpendSmart",
-  "description": "Track every dinar with SpendSmart - Fast, secure personal finance management",
+  "name": "EzKash - Personal Finance Tracker",
+  "short_name": "EzKash",
+  "description": "Track every dinar with EzKash - Fast, secure personal finance management",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0A0A0A",

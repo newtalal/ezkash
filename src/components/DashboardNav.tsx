@@ -59,7 +59,7 @@ export const DashboardNav = () => {
               <Wallet className="w-4 h-4 sm:w-5 sm:h-5 text-primary-foreground" />
             </div>
             <div>
-              <h1 className="text-lg sm:text-xl font-bold text-foreground">SpendSmart</h1>
+              <h1 className="text-lg sm:text-xl font-bold text-foreground">EzKash</h1>
               <p className="text-[10px] sm:text-xs text-muted-foreground hidden xs:block">Track every dinar</p>
             </div>
           </div>
