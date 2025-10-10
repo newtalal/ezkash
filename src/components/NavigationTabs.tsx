@@ -25,7 +25,7 @@ export const NavigationTabs = () => {
               }
             >
               <item.icon className="w-4 h-4" />
-              <span className="hidden xs:inline">{item.label}</span>
+              <span>{item.label}</span>
             </NavLink>
           ))}
         </div>
