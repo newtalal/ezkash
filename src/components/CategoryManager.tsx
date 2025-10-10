@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Sheet,
   SheetContent,
@@ -59,7 +60,7 @@ export const CategoryManager = ({ categories, onCategoriesChange }: CategoryMana
           Manage Categories
         </Button>
       </SheetTrigger>
-      <SheetContent>
+      <SheetContent className="flex flex-col">
         <SheetHeader>
           <SheetTitle>Manage Categories</SheetTitle>
           <SheetDescription>
@@ -67,64 +68,66 @@ export const CategoryManager = ({ categories, onCategoriesChange }: CategoryMana
           </SheetDescription>
         </SheetHeader>
         
-        <div className="space-y-6 mt-6">
-          {/* Add new category */}
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="emoji">Emoji (Optional)</Label>
-              <Input
-                id="emoji"
-                placeholder="🎯"
-                value={emoji}
-                onChange={(e) => setEmoji(e.target.value)}
-                maxLength={2}
-              />
+        <ScrollArea className="flex-1 mt-6 pr-4">
+          <div className="space-y-6">
+            {/* Add new category */}
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="emoji">Emoji (Optional)</Label>
+                <Input
+                  id="emoji"
+                  placeholder="🎯"
+                  value={emoji}
+                  onChange={(e) => setEmoji(e.target.value)}
+                  maxLength={2}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="category">Category Name</Label>
+                <Input
+                  id="category"
+                  placeholder="Enter category name"
+                  value={newCategory}
+                  onChange={(e) => setNewCategory(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      handleAddCategory();
+                    }
+                  }}
+                />
+              </div>
+              
+              <Button onClick={handleAddCategory} className="w-full gap-2">
+                <Plus className="w-4 h-4" />
+                Add Category
+              </Button>
             </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="category">Category Name</Label>
-              <Input
-                id="category"
-                placeholder="Enter category name"
-                value={newCategory}
-                onChange={(e) => setNewCategory(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    handleAddCategory();
-                  }
-                }}
-              />
-            </div>
-            
-            <Button onClick={handleAddCategory} className="w-full gap-2">
-              <Plus className="w-4 h-4" />
-              Add Category
-            </Button>
-          </div>
 
-          {/* Category list */}
-          <div className="space-y-2">
-            <Label>Current Categories</Label>
-            <div className="space-y-2 max-h-[400px] overflow-y-auto">
-              {categories.map((category) => (
-                <div
-                  key={category}
-                  className="flex items-center justify-between p-3 rounded-lg border bg-card"
-                >
-                  <span className="text-sm">{category}</span>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleRemoveCategory(category)}
-                    className="h-8 w-8 text-muted-foreground hover:text-destructive"
+            {/* Category list */}
+            <div className="space-y-2">
+              <Label>Current Categories</Label>
+              <div className="space-y-2">
+                {categories.map((category) => (
+                  <div
+                    key={category}
+                    className="flex items-center justify-between p-3 rounded-lg border bg-card"
                   >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              ))}
+                    <span className="text-sm">{category}</span>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleRemoveCategory(category)}
+                      className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
+        </ScrollArea>
       </SheetContent>
     </Sheet>
   );
