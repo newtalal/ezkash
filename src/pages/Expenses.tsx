@@ -4,6 +4,7 @@ import { NavigationTabs } from "@/components/NavigationTabs";
 import { TransactionEntry } from "@/components/TransactionEntry";
 import { TransactionList } from "@/components/TransactionList";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export interface Transaction {
   id: string;
@@ -31,6 +32,7 @@ const defaultCategories = [
 
 const Expenses = () => {
   const { toast } = useToast();
+  const { t } = useLanguage();
   const [salaryDate] = useState(() => {
     const saved = localStorage.getItem("salaryDate");
     return saved ? parseInt(saved) : 20;
@@ -106,8 +108,8 @@ const Expenses = () => {
   const deleteTransaction = (id: string) => {
     setTransactions(transactions.filter(t => t.id !== id));
     toast({
-      title: "Transaction Deleted",
-      description: "The transaction has been removed successfully",
+      title: t("transactionDeleted"),
+      description: t("transactionRemoved"),
     });
   };
 

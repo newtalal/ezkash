@@ -12,6 +12,7 @@ import { Transaction } from "@/pages/Dashboard";
 import { format } from "date-fns";
 import { Receipt, Trash2 } from "lucide-react";
 import { getCurrentCycle } from "@/lib/cycleUtils";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface TransactionListProps {
   transactions: Transaction[];
@@ -20,6 +21,7 @@ interface TransactionListProps {
 }
 
 export const TransactionList = ({ transactions, salaryDate, onDelete }: TransactionListProps) => {
+  const { t } = useLanguage();
   const { startDate, endDate } = getCurrentCycle(salaryDate);
   
   const cycleTransactions = transactions
@@ -36,12 +38,12 @@ export const TransactionList = ({ transactions, salaryDate, onDelete }: Transact
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
             <Receipt className="w-5 h-5 text-primary" />
-            This Cycle's Transactions
+            {t("thisCycleTransactions")}
           </CardTitle>
           <div className="text-right">
-            <p className="text-sm text-muted-foreground">Total Spent</p>
+            <p className="text-sm text-muted-foreground">{t("totalSpent")}</p>
             <p className="text-2xl font-bold text-destructive">
-              {totalSpentThisCycle.toFixed(3)} KWD
+              {totalSpentThisCycle.toFixed(3)} {t("kwd")}
             </p>
           </div>
         </div>
@@ -50,7 +52,7 @@ export const TransactionList = ({ transactions, salaryDate, onDelete }: Transact
         {cycleTransactions.length === 0 ? (
           <div className="text-center py-12 text-muted-foreground">
             <Receipt className="w-12 h-12 mx-auto mb-3 opacity-20" />
-            <p>No transactions this cycle</p>
+            <p>{t("noTransactionsCycle")}</p>
           </div>
         ) : (
           <div className="rounded-lg border border-border overflow-hidden">
@@ -58,11 +60,11 @@ export const TransactionList = ({ transactions, salaryDate, onDelete }: Transact
               <Table className="w-full">
                 <TableHeader>
                   <TableRow className="bg-muted/50">
-                    <TableHead>Date</TableHead>
-                    <TableHead>Category</TableHead>
-                    <TableHead>Description</TableHead>
-                    <TableHead>Payment</TableHead>
-                    <TableHead className="text-right">Amount</TableHead>
+                    <TableHead>{t("date")}</TableHead>
+                    <TableHead>{t("category")}</TableHead>
+                    <TableHead>{t("description")}</TableHead>
+                    <TableHead>{t("payment")}</TableHead>
+                    <TableHead className="text-right">{t("amount")}</TableHead>
                     <TableHead className="w-[50px]"></TableHead>
                   </TableRow>
                 </TableHeader>
@@ -89,7 +91,7 @@ export const TransactionList = ({ transactions, salaryDate, onDelete }: Transact
                         }`}
                       >
                         {transaction.type === "income" ? "+" : "-"}
-                        {transaction.amount.toFixed(3)} KWD
+                        {transaction.amount.toFixed(3)} {t("kwd")}
                       </TableCell>
                       <TableCell>
                         <Button

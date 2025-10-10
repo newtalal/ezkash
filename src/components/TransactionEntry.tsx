@@ -16,6 +16,7 @@ import { Transaction } from "@/pages/Dashboard";
 import { toast } from "sonner";
 import { CategoryManager } from "@/components/CategoryManager";
 import { supabase } from "@/integrations/supabase/client";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface TransactionEntryProps {
   onAddTransaction: (transaction: Omit<Transaction, "id">) => void;
@@ -23,15 +24,8 @@ interface TransactionEntryProps {
   onCategoriesChange: (categories: string[]) => void;
 }
 
-const paymentMethods = [
-  "Credit Card",
-  "Current Account",
-  "Savings Account",
-  "Cash",
-  "Emergency Fund",
-];
-
 export const TransactionEntry = ({ onAddTransaction, categories, onCategoriesChange }: TransactionEntryProps) => {
+  const { t } = useLanguage();
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
@@ -40,9 +34,17 @@ export const TransactionEntry = ({ onAddTransaction, categories, onCategoriesCha
   const [isParsing, setIsParsing] = useState(false);
   const [showPasteInput, setShowPasteInput] = useState(false);
 
+  const paymentMethods = [
+    t("creditCard"),
+    t("currentAccount"),
+    t("savingsAccount"),
+    t("cash"),
+    t("emergencyFund"),
+  ];
+
   const handleParseTransaction = async () => {
     if (!transactionText.trim()) {
-      toast.error("Please paste transaction text");
+      toast.error(t("pleasePasteText"));
       return;
     }
 
@@ -54,7 +56,7 @@ export const TransactionEntry = ({ onAddTransaction, categories, onCategoriesCha
 
       if (error) {
         console.error("Error parsing transaction:", error);
-        toast.error("Failed to parse transaction");
+        toast.error(t("failedToParse"));
         return;
       }
 
@@ -64,11 +66,11 @@ export const TransactionEntry = ({ onAddTransaction, categories, onCategoriesCha
         setCategory(data.category);
         setTransactionText("");
         setShowPasteInput(false);
-        toast.success("Transaction parsed! Review and submit.");
+        toast.success(t("transactionParsed"));
       }
     } catch (error) {
       console.error("Error:", error);
-      toast.error("Failed to parse transaction");
+      toast.error(t("failedToParse"));
     } finally {
       setIsParsing(false);
     }
@@ -78,7 +80,7 @@ export const TransactionEntry = ({ onAddTransaction, categories, onCategoriesCha
     e.preventDefault();
     
     if (!amount || !category || !paymentMethod) {
-      toast.error("Please fill in all required fields");
+      toast.error(t("pleaseFillRequired"));
       return;
     }
 
@@ -97,7 +99,7 @@ export const TransactionEntry = ({ onAddTransaction, categories, onCategoriesCha
     setDescription("");
     setPaymentMethod("");
     
-    toast.success("Transaction added successfully!");
+    toast.success(t("transactionAdded"));
   };
 
   return (
@@ -105,7 +107,7 @@ export const TransactionEntry = ({ onAddTransaction, categories, onCategoriesCha
       <CardHeader className="p-4 sm:p-6">
         <CardTitle className="flex items-center gap-2 text-lg sm:text-2xl">
           <Plus className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
-          New Transaction
+          {t("newTransaction")}
         </CardTitle>
       </CardHeader>
       <CardContent className="p-4 sm:p-6 pt-0">
@@ -117,7 +119,7 @@ export const TransactionEntry = ({ onAddTransaction, categories, onCategoriesCha
             className="w-full mb-4 border-dashed"
           >
             <Sparkles className="w-4 h-4 mr-2" />
-            Paste Bank Transaction (AI)
+            {t("pasteTransaction")}
           </Button>
         )}
 
@@ -126,11 +128,11 @@ export const TransactionEntry = ({ onAddTransaction, categories, onCategoriesCha
             <div className="space-y-2">
               <Label htmlFor="transaction-text" className="text-sm flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-primary" />
-                Paste Transaction Text
+                {t("pasteTransactionText")}
               </Label>
               <Textarea
                 id="transaction-text"
-                placeholder="Paste your bank transaction text here..."
+                placeholder={t("pasteYourBank")}
                 value={transactionText}
                 onChange={(e) => setTransactionText(e.target.value)}
                 rows={3}
@@ -144,7 +146,7 @@ export const TransactionEntry = ({ onAddTransaction, categories, onCategoriesCha
                 disabled={isParsing || !transactionText.trim()}
                 className="flex-1"
               >
-                {isParsing ? "Parsing..." : "Parse with AI"}
+                {isParsing ? t("parsing") : t("parseWithAI")}
               </Button>
               <Button
                 type="button"
@@ -154,7 +156,7 @@ export const TransactionEntry = ({ onAddTransaction, categories, onCategoriesCha
                   setTransactionText("");
                 }}
               >
-                Cancel
+                {t("cancel")}
               </Button>
             </div>
           </div>
@@ -162,7 +164,7 @@ export const TransactionEntry = ({ onAddTransaction, categories, onCategoriesCha
 
         <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="amount" className="text-sm">Amount (KWD)</Label>
+            <Label htmlFor="amount" className="text-sm">{t("amount")} ({t("kwd")})</Label>
             <Input
               id="amount"
               type="text"
@@ -184,7 +186,7 @@ export const TransactionEntry = ({ onAddTransaction, categories, onCategoriesCha
 
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label htmlFor="category" className="text-sm">Category</Label>
+              <Label htmlFor="category" className="text-sm">{t("category")}</Label>
               <CategoryManager 
                 categories={categories}
                 onCategoriesChange={onCategoriesChange}
@@ -192,7 +194,7 @@ export const TransactionEntry = ({ onAddTransaction, categories, onCategoriesCha
             </div>
             <Select value={category} onValueChange={setCategory} required>
               <SelectTrigger id="category">
-                <SelectValue placeholder="Select category" />
+                <SelectValue placeholder={t("selectCategory")} />
               </SelectTrigger>
               <SelectContent className="bg-popover max-h-[300px]">
                 {categories.map((cat) => (
@@ -205,10 +207,10 @@ export const TransactionEntry = ({ onAddTransaction, categories, onCategoriesCha
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="payment" className="text-sm">Payment Method</Label>
+            <Label htmlFor="payment" className="text-sm">{t("paymentMethod")}</Label>
             <Select value={paymentMethod} onValueChange={setPaymentMethod} required>
               <SelectTrigger id="payment">
-                <SelectValue placeholder="Select payment method" />
+                <SelectValue placeholder={t("selectPaymentMethod")} />
               </SelectTrigger>
               <SelectContent className="bg-popover">
                 {paymentMethods.map((method) => (
@@ -221,10 +223,10 @@ export const TransactionEntry = ({ onAddTransaction, categories, onCategoriesCha
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description" className="text-sm">Description (Optional)</Label>
+            <Label htmlFor="description" className="text-sm">{t("descriptionOptional")}</Label>
             <Textarea
               id="description"
-              placeholder="Add notes..."
+              placeholder={t("addNotes")}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={2}
@@ -232,7 +234,7 @@ export const TransactionEntry = ({ onAddTransaction, categories, onCategoriesCha
           </div>
 
           <Button type="submit" className="w-full bg-gradient-primary">
-            Add Transaction
+            {t("addTransaction")}
           </Button>
         </form>
       </CardContent>
