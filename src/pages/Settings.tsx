@@ -3,6 +3,7 @@ import { DashboardNav } from "@/components/DashboardNav";
 import { NavigationTabs } from "@/components/NavigationTabs";
 import { BudgetSettings } from "@/components/BudgetSettings";
 import { AccountsOverview } from "@/components/AccountsOverview";
+import { LanguageSettings } from "@/components/LanguageSettings";
 
 const Settings = () => {
   const [monthlyIncome, setMonthlyIncome] = useState(() => {
@@ -44,6 +45,7 @@ const Settings = () => {
           />
           <AccountsOverview />
         </div>
+        <LanguageSettings />
       </main>
     </div>
   );
