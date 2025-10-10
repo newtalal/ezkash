@@ -71,9 +71,6 @@ const Index = () => {
               >
                 Get Started
               </Button>
-              <p className="text-sm text-muted-foreground mt-4">
-                No credit card required • One-time payment of 20 KWD
-              </p>
             </div>
 
             <div className="grid md:grid-cols-3 gap-6 mb-20">
