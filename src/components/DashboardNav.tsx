@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { useLanguage } from "@/contexts/LanguageContext";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,6 +16,7 @@ import {
 
 export const DashboardNav = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [isDark, setIsDark] = useState(false);
   const [user, setUser] = useState<any>(null);
 
@@ -60,7 +62,7 @@ export const DashboardNav = () => {
             </div>
             <div>
               <h1 className="text-lg sm:text-xl font-bold text-foreground">EzKash</h1>
-              <p className="text-[10px] sm:text-xs text-muted-foreground hidden xs:block">Track every dinar</p>
+              <p className="text-[10px] sm:text-xs text-muted-foreground hidden xs:block">{t("trackEveryDinar")}</p>
             </div>
           </div>
           
@@ -88,14 +90,14 @@ export const DashboardNav = () => {
                 <DropdownMenuContent align="end" className="w-56">
                   <DropdownMenuLabel>
                     <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium">My Account</p>
+                      <p className="text-sm font-medium">{t("myAccount")}</p>
                       <p className="text-xs text-muted-foreground truncate">{user.email}</p>
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleSignOut} className="text-destructive cursor-pointer">
                     <LogOut className="mr-2 h-4 w-4" />
-                    Sign Out
+                    {t("signOut")}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
