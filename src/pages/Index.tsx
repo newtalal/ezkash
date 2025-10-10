@@ -64,13 +64,41 @@ const Index = () => {
                 The fastest, most intuitive way to track spending and stay on budget.
                 Designed for people who value their time and money.
               </p>
-              <Button
-                onClick={() => navigate("/auth")}
-                size="lg"
-                className="bg-gradient-primary text-lg h-14 px-8"
-              >
-                Get Started
-              </Button>
+              
+              <div className="grid md:grid-cols-2 gap-4 max-w-2xl mx-auto mt-12">
+                <Card className="shadow-card hover:shadow-elevated transition-shadow">
+                  <CardContent className="pt-6 pb-6">
+                    <h3 className="text-xl font-semibold mb-3">New User</h3>
+                    <p className="text-muted-foreground text-sm mb-4">
+                      Start tracking your finances today
+                    </p>
+                    <Button
+                      onClick={() => navigate("/auth?mode=signup")}
+                      className="w-full bg-gradient-primary"
+                      size="lg"
+                    >
+                      Get Started
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                <Card className="shadow-card hover:shadow-elevated transition-shadow">
+                  <CardContent className="pt-6 pb-6">
+                    <h3 className="text-xl font-semibold mb-3">Existing User</h3>
+                    <p className="text-muted-foreground text-sm mb-4">
+                      Welcome back! Sign in to continue
+                    </p>
+                    <Button
+                      onClick={() => navigate("/auth?mode=signin")}
+                      variant="outline"
+                      className="w-full"
+                      size="lg"
+                    >
+                      Sign In
+                    </Button>
+                  </CardContent>
+                </Card>
+              </div>
             </div>
 
             <div className="grid md:grid-cols-3 gap-6 mb-20">
