@@ -42,7 +42,7 @@ const Index = () => {
                 <Wallet className="w-5 h-5 text-primary-foreground" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-foreground">SpendSmart</h1>
+                <h1 className="text-xl font-bold text-foreground">EzKash</h1>
                 <p className="text-xs text-muted-foreground">Track every dinar</p>
               </div>
             </div>
@@ -125,7 +125,7 @@ const Index = () => {
 
       <footer className="border-t border-border py-8 px-4">
         <div className="container mx-auto text-center text-muted-foreground text-sm">
-          <p>© 2025 SpendSmart. Take control of your finances.</p>
+          <p>© 2025 EzKash. Take control of your finances.</p>
         </div>
       </footer>
     </div>
