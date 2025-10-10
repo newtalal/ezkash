@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Wallet, CreditCard, PiggyBank, Shield, Pencil, Trash2, Plus, Check, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export interface Account {
   id: string;
@@ -28,6 +29,7 @@ const getIcon = (iconType: string) => {
 
 export const AccountsOverview = () => {
   const { toast } = useToast();
+  const { t } = useLanguage();
   const [accounts, setAccounts] = useState<Account[]>(() => {
     const saved = localStorage.getItem("accounts");
     if (saved) {
@@ -97,8 +99,8 @@ export const AccountsOverview = () => {
     const balance = parseFloat(editForm.balance);
     if (!editForm.name.trim() || isNaN(balance) || balance < 0) {
       toast({
-        title: "Invalid input",
-        description: "Please enter a valid name and positive balance",
+        title: t("invalidInput"),
+        description: t("pleaseEnterValid"),
         variant: "destructive",
       });
       return;
@@ -111,8 +113,8 @@ export const AccountsOverview = () => {
     ));
     setEditingId(null);
     toast({
-      title: "Account updated",
-      description: "Account details have been saved",
+      title: t("accountUpdated"),
+      description: t("accountDetailsSaved"),
     });
   };
 
@@ -124,8 +126,8 @@ export const AccountsOverview = () => {
   const handleDelete = (id: string) => {
     setAccounts(accounts.filter(acc => acc.id !== id));
     toast({
-      title: "Account deleted",
-      description: "Account has been removed",
+      title: t("accountDeleted"),
+      description: t("accountRemoved"),
     });
   };
 
@@ -139,8 +141,8 @@ export const AccountsOverview = () => {
     const balance = parseFloat(newAccount.balance);
     if (!newAccount.name.trim() || isNaN(balance) || balance < 0) {
       toast({
-        title: "Invalid input",
-        description: "Please enter a valid name and positive balance",
+        title: t("invalidInput"),
+        description: t("pleaseEnterValid"),
         variant: "destructive",
       });
       return;
@@ -165,8 +167,8 @@ export const AccountsOverview = () => {
     });
     setShowAddForm(false);
     toast({
-      title: "Account added",
-      description: "New account has been created",
+      title: t("accountAdded"),
+      description: t("newAccountCreated"),
     });
   };
 
@@ -174,39 +176,39 @@ export const AccountsOverview = () => {
     <Card className="shadow-card xl:sticky xl:top-20">
       <CardHeader className="p-4 sm:p-6">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-lg sm:text-2xl">Accounts</CardTitle>
+          <CardTitle className="text-lg sm:text-2xl">{t("accounts")}</CardTitle>
           <Button
             onClick={() => setShowAddForm(!showAddForm)}
             size="sm"
             variant={showAddForm ? "outline" : "default"}
           >
             {showAddForm ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
-            <span className="ml-2">{showAddForm ? "Cancel" : "Add"}</span>
+            <span className="ml-2">{showAddForm ? t("cancel") : t("add")}</span>
           </Button>
         </div>
       </CardHeader>
       <CardContent className="space-y-3 sm:space-y-4 p-4 sm:p-6 pt-0">
         <div className="p-3 sm:p-4 rounded-xl bg-gradient-primary text-primary-foreground">
-          <p className="text-xs sm:text-sm opacity-90 mb-1">Total Spendable</p>
-          <p className="text-2xl sm:text-3xl font-bold">{spendableBalance.toFixed(3)} KWD</p>
-          <p className="text-[10px] sm:text-xs opacity-75 mt-1">From active accounts</p>
+          <p className="text-xs sm:text-sm opacity-90 mb-1">{t("totalSpendable")}</p>
+          <p className="text-2xl sm:text-3xl font-bold">{spendableBalance.toFixed(3)} {t("kwd")}</p>
+          <p className="text-[10px] sm:text-xs opacity-75 mt-1">{t("fromActiveAccounts")}</p>
         </div>
 
         {showAddForm && (
           <Card className="p-3 sm:p-4 bg-muted/30">
             <div className="space-y-3">
               <div>
-                <Label htmlFor="new-account-name" className="text-xs">Account Name</Label>
+                <Label htmlFor="new-account-name" className="text-xs">{t("accountName")}</Label>
                 <Input
                   id="new-account-name"
                   value={newAccount.name}
                   onChange={(e) => setNewAccount({ ...newAccount, name: e.target.value })}
-                  placeholder="e.g., Savings Account"
+                  placeholder={t("accountName")}
                   className="h-9"
                 />
               </div>
               <div>
-                <Label htmlFor="new-account-balance" className="text-xs">Balance (KWD)</Label>
+                <Label htmlFor="new-account-balance" className="text-xs">{t("balance")} ({t("kwd")})</Label>
                 <Input
                   id="new-account-balance"
                   type="number"
@@ -218,7 +220,7 @@ export const AccountsOverview = () => {
                 />
               </div>
               <div className="flex items-center justify-between">
-                <Label htmlFor="new-account-spendable" className="text-xs">Include in Total Spendable</Label>
+                <Label htmlFor="new-account-spendable" className="text-xs">{t("includeInTotal")}</Label>
                 <Switch
                   id="new-account-spendable"
                   checked={newAccount.isSpendable}
@@ -227,7 +229,7 @@ export const AccountsOverview = () => {
               </div>
               <Button onClick={handleAddAccount} className="w-full" size="sm">
                 <Plus className="w-4 h-4 mr-2" />
-                Create Account
+                {t("createAccount")}
               </Button>
             </div>
           </Card>
@@ -242,7 +244,7 @@ export const AccountsOverview = () => {
               {editingId === account.id ? (
                 <div className="space-y-3">
                   <div>
-                    <Label htmlFor={`edit-name-${account.id}`} className="text-xs">Name</Label>
+                    <Label htmlFor={`edit-name-${account.id}`} className="text-xs">{t("name")}</Label>
                     <Input
                       id={`edit-name-${account.id}`}
                       value={editForm.name}
@@ -251,7 +253,7 @@ export const AccountsOverview = () => {
                     />
                   </div>
                   <div>
-                    <Label htmlFor={`edit-balance-${account.id}`} className="text-xs">Balance (KWD)</Label>
+                    <Label htmlFor={`edit-balance-${account.id}`} className="text-xs">{t("balance")} ({t("kwd")})</Label>
                     <Input
                       id={`edit-balance-${account.id}`}
                       type="number"
@@ -264,11 +266,11 @@ export const AccountsOverview = () => {
                   <div className="flex gap-2">
                     <Button onClick={() => handleSaveEdit(account.id)} size="sm" className="flex-1">
                       <Check className="w-4 h-4 mr-1" />
-                      Save
+                      {t("save")}
                     </Button>
                     <Button onClick={handleCancelEdit} size="sm" variant="outline" className="flex-1">
                       <X className="w-4 h-4 mr-1" />
-                      Cancel
+                      {t("cancel")}
                     </Button>
                   </div>
                 </div>
@@ -280,7 +282,7 @@ export const AccountsOverview = () => {
                       <div>
                         <p className="font-medium text-xs sm:text-sm">{account.name}</p>
                         {account.isSpendable && (
-                          <p className="text-[10px] text-muted-foreground">Spendable</p>
+                          <p className="text-[10px] text-muted-foreground">{t("spendable")}</p>
                         )}
                       </div>
                     </div>
@@ -288,7 +290,7 @@ export const AccountsOverview = () => {
                   </div>
                   <div className="flex items-center justify-between gap-2 pt-2 border-t">
                     <div className="flex items-center gap-2">
-                      <Label htmlFor={`spendable-${account.id}`} className="text-xs">Spendable</Label>
+                      <Label htmlFor={`spendable-${account.id}`} className="text-xs">{t("spendable")}</Label>
                       <Switch
                         id={`spendable-${account.id}`}
                         checked={account.isSpendable}

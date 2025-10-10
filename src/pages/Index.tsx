@@ -2,34 +2,36 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Wallet, TrendingUp, Shield, Zap, Check } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const Index = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   const features = [
     {
       icon: <Zap className="w-6 h-6" />,
-      title: "Lightning Fast Entry",
-      description: "Log transactions in under 10 seconds",
+      title: t("lightningFastEntry"),
+      description: t("logTransactions"),
     },
     {
       icon: <TrendingUp className="w-6 h-6" />,
-      title: "Smart Insights",
-      description: "Real-time spending analysis and alerts",
+      title: t("smartInsights"),
+      description: t("realtimeSpending"),
     },
     {
       icon: <Shield className="w-6 h-6" />,
-      title: "Secure & Private",
-      description: "Your financial data stays protected",
+      title: t("securePrivate"),
+      description: t("dataStaysProtected"),
     },
   ];
 
   const benefits = [
-    "Track income and expenses effortlessly",
-    "Manage multiple accounts and payment methods",
-    "Custom monthly cycles (20th-19th)",
-    "Smart spending alerts and daily budgets",
-    "Simple one-time payment",
+    t("trackIncomeExpenses"),
+    t("manageMultipleAccounts"),
+    t("customMonthlyCycles"),
+    t("smartSpendingAlerts"),
+    t("simplePayment"),
   ];
 
   return (
@@ -43,11 +45,11 @@ const Index = () => {
               </div>
               <div>
                 <h1 className="text-xl font-bold text-foreground">EzKash</h1>
-                <p className="text-xs text-muted-foreground">Track every dinar</p>
+                <p className="text-xs text-muted-foreground">{t("trackEveryDinar")}</p>
               </div>
             </div>
             <Button onClick={() => navigate("/auth")} className="bg-gradient-primary">
-              Get Started
+              {t("getStarted")}
             </Button>
           </div>
         </div>
@@ -58,35 +60,34 @@ const Index = () => {
           <div className="container mx-auto max-w-6xl">
             <div className="text-center max-w-3xl mx-auto mb-16">
               <h2 className="text-5xl font-bold mb-6 bg-gradient-primary bg-clip-text text-transparent">
-                Take Control of Your Finances
+                {t("takeControlFinances")}
               </h2>
               <p className="text-xl text-muted-foreground mb-8">
-                The fastest, most intuitive way to track spending and stay on budget.
-                Designed for people who value their time and money.
+                {t("fastestIntuitive")}
               </p>
               
               <div className="grid md:grid-cols-2 gap-4 max-w-2xl mx-auto mt-12">
                 <Card className="shadow-card hover:shadow-elevated transition-shadow">
                   <CardContent className="pt-6 pb-6">
-                    <h3 className="text-xl font-semibold mb-3">New User</h3>
+                    <h3 className="text-xl font-semibold mb-3">{t("newUser")}</h3>
                     <p className="text-muted-foreground text-sm mb-4">
-                      Start tracking your finances today
+                      {t("startTrackingFinances")}
                     </p>
                     <Button
                       onClick={() => navigate("/auth?mode=signup")}
                       className="w-full bg-gradient-primary"
                       size="lg"
                     >
-                      Get Started
+                      {t("getStarted")}
                     </Button>
                   </CardContent>
                 </Card>
 
                 <Card className="shadow-card hover:shadow-elevated transition-shadow">
                   <CardContent className="pt-6 pb-6">
-                    <h3 className="text-xl font-semibold mb-3">Existing User</h3>
+                    <h3 className="text-xl font-semibold mb-3">{t("existingUser")}</h3>
                     <p className="text-muted-foreground text-sm mb-4">
-                      Welcome back! Sign in to continue
+                      {t("welcomeBackSignIn")}
                     </p>
                     <Button
                       onClick={() => navigate("/auth?mode=signin")}
@@ -94,7 +95,7 @@ const Index = () => {
                       className="w-full"
                       size="lg"
                     >
-                      Sign In
+                      {t("signIn")}
                     </Button>
                   </CardContent>
                 </Card>
@@ -119,7 +120,7 @@ const Index = () => {
               <CardContent className="py-12 px-8">
                 <div className="max-w-2xl mx-auto">
                   <h3 className="text-3xl font-bold mb-6 text-center">
-                    Everything you need to manage money
+                    {t("everythingYouNeed")}
                   </h3>
                   <div className="grid sm:grid-cols-2 gap-4">
                     {benefits.map((benefit, index) => (
@@ -138,7 +139,7 @@ const Index = () => {
                       size="lg"
                       className="text-lg h-12 px-8"
                     >
-                      Get Started Now
+                      {t("getStartedNow")}
                     </Button>
                   </div>
                 </div>
@@ -150,7 +151,7 @@ const Index = () => {
 
       <footer className="border-t border-border py-8 px-4">
         <div className="container mx-auto text-center text-muted-foreground text-sm">
-          <p>© 2025 EzKash. Take control of your finances.</p>
+          <p>© 2025 EzKash. {t("copyright")}</p>
         </div>
       </footer>
     </div>

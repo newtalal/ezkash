@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { Wallet, LogIn, UserPlus } from "lucide-react";
 import { z } from "zod";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const authSchema = z.object({
   email: z.string().trim().email({ message: "Invalid email address" }).max(255),
@@ -19,6 +20,7 @@ const authSchema = z.object({
 const Auth = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState("signin");
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState("");
@@ -119,13 +121,13 @@ const Auth = () => {
             <Wallet className="w-8 h-8 text-primary" />
           </div>
           <h1 className="text-3xl font-bold">EzKash</h1>
-          <p className="text-muted-foreground">Track your expenses and manage your budget</p>
+          <p className="text-muted-foreground">{t("trackExpensesManage")}</p>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="signin">Sign In</TabsTrigger>
-            <TabsTrigger value="signup">Sign Up</TabsTrigger>
+            <TabsTrigger value="signin">{t("signIn")}</TabsTrigger>
+            <TabsTrigger value="signup">{t("signUp")}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="signin">
@@ -133,14 +135,14 @@ const Auth = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <LogIn className="w-5 h-5" />
-                  Welcome Back
+                  {t("welcomeBack")}
                 </CardTitle>
-                <CardDescription>Sign in to access your budget data</CardDescription>
+                <CardDescription>{t("signInToAccess")}</CardDescription>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleSignIn} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="signin-email">Email</Label>
+                    <Label htmlFor="signin-email">{t("email")}</Label>
                     <Input
                       id="signin-email"
                       type="email"
@@ -152,7 +154,7 @@ const Auth = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="signin-password">Password</Label>
+                    <Label htmlFor="signin-password">{t("password")}</Label>
                     <Input
                       id="signin-password"
                       type="password"
@@ -164,7 +166,7 @@ const Auth = () => {
                     />
                   </div>
                   <Button type="submit" className="w-full" disabled={isLoading}>
-                    {isLoading ? "Signing in..." : "Sign In"}
+                    {isLoading ? t("signingIn") : t("signIn")}
                   </Button>
                 </form>
               </CardContent>
@@ -176,25 +178,25 @@ const Auth = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <UserPlus className="w-5 h-5" />
-                  Create Account
+                  {t("createAccount")}
                 </CardTitle>
-                <CardDescription>Sign up to save your budget data</CardDescription>
+                <CardDescription>{t("signUpToSave")}</CardDescription>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleSignUp} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="signup-username">Username</Label>
+                    <Label htmlFor="signup-username">{t("username")}</Label>
                     <Input
                       id="signup-username"
                       type="text"
-                      placeholder="Choose a username"
+                      placeholder={t("username")}
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
                       disabled={isLoading}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="signup-email">Email</Label>
+                    <Label htmlFor="signup-email">{t("email")}</Label>
                     <Input
                       id="signup-email"
                       type="email"
@@ -206,7 +208,7 @@ const Auth = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="signup-password">Password</Label>
+                    <Label htmlFor="signup-password">{t("password")}</Label>
                     <Input
                       id="signup-password"
                       type="password"
@@ -218,7 +220,7 @@ const Auth = () => {
                     />
                   </div>
                   <Button type="submit" className="w-full" disabled={isLoading}>
-                    {isLoading ? "Creating account..." : "Sign Up"}
+                    {isLoading ? t("creatingAccount") : t("signUp")}
                   </Button>
                 </form>
               </CardContent>
@@ -234,10 +236,10 @@ const Auth = () => {
               onClick={handleDemoMode}
               disabled={isLoading}
             >
-              Try Demo (No Account Required)
+              {t("tryDemo")} ({t("noAccountRequired")})
             </Button>
             <p className="text-xs text-muted-foreground text-center mt-2">
-              Demo mode saves data locally on your device
+              {t("demoModeSaves")}
             </p>
           </CardContent>
         </Card>

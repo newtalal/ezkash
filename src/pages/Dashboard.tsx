@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TrendingDown, Wallet } from "lucide-react";
 import { Account } from "@/components/AccountsOverview";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export interface Transaction {
   id: string;
@@ -34,6 +35,7 @@ const defaultCategories = [
 
 const Dashboard = () => {
   const { toast } = useToast();
+  const { t } = useLanguage();
   const [monthlyIncome, setMonthlyIncome] = useState(() => {
     const saved = localStorage.getItem("monthlyIncome");
     return saved ? parseFloat(saved) : 1500;
@@ -124,14 +126,14 @@ const Dashboard = () => {
             <CardHeader className="p-4 sm:p-6">
               <CardTitle className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
                 <Wallet className="w-4 h-4 text-primary" />
-                Total Spendable
+                {t("totalSpendable")}
               </CardTitle>
             </CardHeader>
             <CardContent className="p-4 sm:p-6 pt-0">
               <div className="text-2xl sm:text-3xl font-bold text-primary">
-                {totalSpendable.toFixed(3)} KWD
+                {totalSpendable.toFixed(3)} {t("kwd")}
               </div>
-              <p className="text-xs text-muted-foreground mt-1">From active accounts</p>
+              <p className="text-xs text-muted-foreground mt-1">{t("fromActiveAccounts")}</p>
             </CardContent>
           </Card>
 
@@ -139,12 +141,12 @@ const Dashboard = () => {
             <CardHeader className="p-4 sm:p-6">
               <CardTitle className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
                 <TrendingDown className="w-4 h-4 text-destructive" />
-                Total Expenses
+                {t("totalSpent")}
               </CardTitle>
             </CardHeader>
             <CardContent className="p-4 sm:p-6 pt-0">
               <div className="text-2xl sm:text-3xl font-bold text-destructive">
-                {totalExpenses.toFixed(3)} KWD
+                {totalExpenses.toFixed(3)} {t("kwd")}
               </div>
             </CardContent>
           </Card>
