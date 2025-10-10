@@ -9,9 +9,7 @@ const Switch = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <SwitchPrimitives.Root
     className={cn(
-      "peer relative inline-flex h-7 w-14 shrink-0 cursor-pointer items-center rounded-full border-2 transition-all duration-200",
-      "data-[state=checked]:bg-success data-[state=checked]:border-success",
-      "data-[state=unchecked]:bg-muted data-[state=unchecked]:border-muted-foreground/20",
+      "peer inline-flex h-9 shrink-0 cursor-pointer items-center rounded-lg border-2 border-border bg-muted p-0.5 transition-colors",
       "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
       "disabled:cursor-not-allowed disabled:opacity-50",
       className,
@@ -19,16 +17,29 @@ const Switch = React.forwardRef<
     {...props}
     ref={ref}
   >
-    <SwitchPrimitives.Thumb
-      className={cn(
-        "pointer-events-none flex items-center justify-center h-6 w-6 rounded-full bg-background shadow-lg ring-0 transition-transform duration-200",
-        "data-[state=checked]:translate-x-7 data-[state=unchecked]:translate-x-0",
-      )}
-    >
-      <span className="text-[8px] font-bold data-[state=checked]:text-success data-[state=unchecked]:text-muted-foreground">
-        {props.checked ? "ON" : "OFF"}
-      </span>
-    </SwitchPrimitives.Thumb>
+    <div className="flex gap-0.5 w-full">
+      <div
+        className={cn(
+          "flex-1 flex items-center justify-center px-3 py-1 rounded-md text-xs font-semibold transition-all duration-200",
+          "data-[state=unchecked]:bg-destructive data-[state=unchecked]:text-destructive-foreground data-[state=unchecked]:shadow-sm",
+          "data-[state=checked]:bg-transparent data-[state=checked]:text-muted-foreground",
+        )}
+        data-state={props.checked ? "checked" : "unchecked"}
+      >
+        OFF
+      </div>
+      <div
+        className={cn(
+          "flex-1 flex items-center justify-center px-3 py-1 rounded-md text-xs font-semibold transition-all duration-200",
+          "data-[state=checked]:bg-success data-[state=checked]:text-success-foreground data-[state=checked]:shadow-sm",
+          "data-[state=unchecked]:bg-transparent data-[state=unchecked]:text-muted-foreground",
+        )}
+        data-state={props.checked ? "checked" : "unchecked"}
+      >
+        ON
+      </div>
+    </div>
+    <SwitchPrimitives.Thumb className="hidden" />
   </SwitchPrimitives.Root>
 ));
 Switch.displayName = SwitchPrimitives.Root.displayName;
