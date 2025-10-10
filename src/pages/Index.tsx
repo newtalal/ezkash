@@ -29,7 +29,7 @@ const Index = () => {
     "Manage multiple accounts and payment methods",
     "Custom monthly cycles (20th-19th)",
     "Smart spending alerts and daily budgets",
-    "7-day free trial, then one-time payment",
+    "Simple one-time payment",
   ];
 
   return (
@@ -69,10 +69,10 @@ const Index = () => {
                 size="lg"
                 className="bg-gradient-primary text-lg h-14 px-8"
               >
-                Start 7-Day Free Trial
+                Get Started
               </Button>
               <p className="text-sm text-muted-foreground mt-4">
-                No credit card required • One-time payment of 20 KWD after trial
+                No credit card required • One-time payment of 20 KWD
               </p>
             </div>
 
