@@ -11,10 +11,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus } from "lucide-react";
+import { Plus, Sparkles } from "lucide-react";
 import { Transaction } from "@/pages/Dashboard";
 import { toast } from "sonner";
 import { CategoryManager } from "@/components/CategoryManager";
+import { supabase } from "@/integrations/supabase/client";
 
 interface TransactionEntryProps {
   onAddTransaction: (transaction: Omit<Transaction, "id">) => void;
@@ -35,6 +36,43 @@ export const TransactionEntry = ({ onAddTransaction, categories, onCategoriesCha
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("");
+  const [transactionText, setTransactionText] = useState("");
+  const [isParsing, setIsParsing] = useState(false);
+  const [showPasteInput, setShowPasteInput] = useState(false);
+
+  const handleParseTransaction = async () => {
+    if (!transactionText.trim()) {
+      toast.error("Please paste transaction text");
+      return;
+    }
+
+    setIsParsing(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('parse-transaction', {
+        body: { transactionText }
+      });
+
+      if (error) {
+        console.error("Error parsing transaction:", error);
+        toast.error("Failed to parse transaction");
+        return;
+      }
+
+      if (data) {
+        setAmount(data.amount.toString());
+        setDescription(data.description);
+        setCategory(data.category);
+        setTransactionText("");
+        setShowPasteInput(false);
+        toast.success("Transaction parsed! Review and submit.");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      toast.error("Failed to parse transaction");
+    } finally {
+      setIsParsing(false);
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -71,6 +109,57 @@ export const TransactionEntry = ({ onAddTransaction, categories, onCategoriesCha
         </CardTitle>
       </CardHeader>
       <CardContent className="p-4 sm:p-6 pt-0">
+        {!showPasteInput && (
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setShowPasteInput(true)}
+            className="w-full mb-4 border-dashed"
+          >
+            <Sparkles className="w-4 h-4 mr-2" />
+            Paste Bank Transaction (AI)
+          </Button>
+        )}
+
+        {showPasteInput && (
+          <div className="space-y-3 mb-4 p-3 border border-primary/20 rounded-lg bg-primary/5">
+            <div className="space-y-2">
+              <Label htmlFor="transaction-text" className="text-sm flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-primary" />
+                Paste Transaction Text
+              </Label>
+              <Textarea
+                id="transaction-text"
+                placeholder="Paste your bank transaction text here..."
+                value={transactionText}
+                onChange={(e) => setTransactionText(e.target.value)}
+                rows={3}
+                className="font-mono text-sm"
+              />
+            </div>
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                onClick={handleParseTransaction}
+                disabled={isParsing || !transactionText.trim()}
+                className="flex-1"
+              >
+                {isParsing ? "Parsing..." : "Parse with AI"}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  setShowPasteInput(false);
+                  setTransactionText("");
+                }}
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
           <div className="space-y-2">
             <Label htmlFor="amount" className="text-sm">Amount (KWD)</Label>
