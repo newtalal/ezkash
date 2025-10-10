@@ -15,11 +15,30 @@ export interface Transaction {
   date: Date;
 }
 
+const defaultCategories = [
+  "🍕 Food",
+  "🚗 Transport",
+  "🏠 Housing",
+  "💡 Utilities",
+  "🛍️ Shopping",
+  "🎬 Entertainment",
+  "💰 Salary",
+  "💸 Other Income",
+  "📱 Subscriptions",
+  "💊 Health",
+  "📌 Other",
+];
+
 const Expenses = () => {
   const { toast } = useToast();
   const [salaryDate] = useState(() => {
     const saved = localStorage.getItem("salaryDate");
     return saved ? parseInt(saved) : 20;
+  });
+
+  const [categories, setCategories] = useState<string[]>(() => {
+    const saved = localStorage.getItem("categories");
+    return saved ? JSON.parse(saved) : defaultCategories;
   });
 
   const [transactions, setTransactions] = useState<Transaction[]>(() => {
@@ -57,6 +76,25 @@ const Expenses = () => {
     localStorage.setItem("transactions", JSON.stringify(transactions));
   }, [transactions]);
 
+  useEffect(() => {
+    localStorage.setItem("categories", JSON.stringify(categories));
+  }, [categories]);
+
+  const handleCategoriesChange = (newCategories: string[]) => {
+    const removedCategories = categories.filter(c => !newCategories.includes(c));
+    
+    if (removedCategories.length > 0) {
+      // Update transactions with removed categories to "📌 Other"
+      setTransactions(transactions.map(t => 
+        removedCategories.includes(t.category) 
+          ? { ...t, category: "📌 Other" }
+          : t
+      ));
+    }
+    
+    setCategories(newCategories);
+  };
+
   const addTransaction = (transaction: Omit<Transaction, "id">) => {
     const newTransaction = {
       ...transaction,
@@ -78,7 +116,11 @@ const Expenses = () => {
       <DashboardNav />
       <NavigationTabs />
       <main className="w-full max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-6">
-        <TransactionEntry onAddTransaction={addTransaction} />
+        <TransactionEntry 
+          onAddTransaction={addTransaction}
+          categories={categories}
+          onCategoriesChange={handleCategoriesChange}
+        />
         <TransactionList 
           transactions={transactions}
           salaryDate={salaryDate}

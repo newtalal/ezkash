@@ -18,11 +18,30 @@ export interface Transaction {
   date: Date;
 }
 
+const defaultCategories = [
+  "🍕 Food",
+  "🚗 Transport",
+  "🏠 Housing",
+  "💡 Utilities",
+  "🛍️ Shopping",
+  "🎬 Entertainment",
+  "💰 Salary",
+  "💸 Other Income",
+  "📱 Subscriptions",
+  "💊 Health",
+  "📌 Other",
+];
+
 const Dashboard = () => {
   const { toast } = useToast();
   const [monthlyIncome, setMonthlyIncome] = useState(() => {
     const saved = localStorage.getItem("monthlyIncome");
     return saved ? parseFloat(saved) : 1500;
+  });
+
+  const [categories] = useState<string[]>(() => {
+    const saved = localStorage.getItem("categories");
+    return saved ? JSON.parse(saved) : defaultCategories;
   });
 
   const [salaryDate, setSalaryDate] = useState(() => {

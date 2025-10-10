@@ -11,26 +11,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ArrowDownCircle, ArrowUpCircle, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { Transaction } from "@/pages/Dashboard";
 import { toast } from "sonner";
+import { CategoryManager } from "@/components/CategoryManager";
 
 interface TransactionEntryProps {
   onAddTransaction: (transaction: Omit<Transaction, "id">) => void;
+  categories: string[];
+  onCategoriesChange: (categories: string[]) => void;
 }
-
-const categories = [
-  "🍕 Food",
-  "🚗 Transport",
-  "🏠 Housing",
-  "💡 Utilities",
-  "🛍️ Shopping",
-  "🎬 Entertainment",
-  "💰 Salary",
-  "💸 Other Income",
-  "📱 Subscriptions",
-  "💊 Health",
-];
 
 const paymentMethods = [
   "Credit Card",
@@ -40,7 +30,7 @@ const paymentMethods = [
   "Emergency Fund",
 ];
 
-export const TransactionEntry = ({ onAddTransaction }: TransactionEntryProps) => {
+export const TransactionEntry = ({ onAddTransaction, categories, onCategoriesChange }: TransactionEntryProps) => {
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
@@ -104,12 +94,18 @@ export const TransactionEntry = ({ onAddTransaction }: TransactionEntryProps) =>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="category" className="text-sm">Category</Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="category" className="text-sm">Category</Label>
+              <CategoryManager 
+                categories={categories}
+                onCategoriesChange={onCategoriesChange}
+              />
+            </div>
             <Select value={category} onValueChange={setCategory} required>
               <SelectTrigger id="category">
                 <SelectValue placeholder="Select category" />
               </SelectTrigger>
-              <SelectContent className="bg-popover">
+              <SelectContent className="bg-popover max-h-[300px]">
                 {categories.map((cat) => (
                   <SelectItem key={cat} value={cat}>
                     {cat}
