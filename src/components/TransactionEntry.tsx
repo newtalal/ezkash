@@ -11,7 +11,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, Sparkles } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Plus, Sparkles, Clipboard } from "lucide-react";
 import { Transaction } from "@/pages/Dashboard";
 import { toast } from "sonner";
 import { CategoryManager } from "@/components/CategoryManager";
@@ -33,6 +41,12 @@ export const TransactionEntry = ({ onAddTransaction, categories, onCategoriesCha
   const [transactionText, setTransactionText] = useState("");
   const [isParsing, setIsParsing] = useState(false);
   const [showPasteInput, setShowPasteInput] = useState(false);
+  const [showApprovalDialog, setShowApprovalDialog] = useState(false);
+  const [parsedData, setParsedData] = useState<{
+    amount: string;
+    description: string;
+    category: string;
+  } | null>(null);
 
   const paymentMethods = [
     t("creditCard"),
@@ -41,6 +55,43 @@ export const TransactionEntry = ({ onAddTransaction, categories, onCategoriesCha
     t("cash"),
     t("emergencyFund"),
   ];
+
+  const handlePasteFromClipboard = async () => {
+    setIsParsing(true);
+    try {
+      const clipboardText = await navigator.clipboard.readText();
+      
+      if (!clipboardText.trim()) {
+        toast.error("Clipboard is empty");
+        return;
+      }
+
+      const { data, error } = await supabase.functions.invoke('parse-transaction', {
+        body: { transactionText: clipboardText }
+      });
+
+      if (error) {
+        console.error("Error parsing transaction:", error);
+        toast.error(t("failedToParse"));
+        return;
+      }
+
+      if (data) {
+        setParsedData({
+          amount: data.amount.toString(),
+          description: data.description,
+          category: data.category
+        });
+        setShowApprovalDialog(true);
+        toast.success("Bank SMS parsed successfully!");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      toast.error("Failed to read clipboard or parse transaction");
+    } finally {
+      setIsParsing(false);
+    }
+  };
 
   const handleParseTransaction = async () => {
     if (!transactionText.trim()) {
@@ -74,6 +125,22 @@ export const TransactionEntry = ({ onAddTransaction, categories, onCategoriesCha
     } finally {
       setIsParsing(false);
     }
+  };
+
+  const handleApproveTransaction = () => {
+    if (parsedData) {
+      setAmount(parsedData.amount);
+      setDescription(parsedData.description);
+      setCategory(parsedData.category);
+      setShowApprovalDialog(false);
+      setParsedData(null);
+      toast.success("Transaction details applied!");
+    }
+  };
+
+  const handleCancelApproval = () => {
+    setShowApprovalDialog(false);
+    setParsedData(null);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -111,17 +178,28 @@ export const TransactionEntry = ({ onAddTransaction, categories, onCategoriesCha
         </CardTitle>
       </CardHeader>
       <CardContent className="p-4 sm:p-6 pt-0">
-        {!showPasteInput && (
+        <div className="flex gap-2 mb-4">
           <Button
             type="button"
-            variant="outline"
-            onClick={() => setShowPasteInput(true)}
-            className="w-full mb-4 border-dashed"
+            variant="default"
+            onClick={handlePasteFromClipboard}
+            disabled={isParsing}
+            className="flex-1 bg-gradient-primary"
           >
-            <Sparkles className="w-4 h-4 mr-2" />
-            {t("pasteTransaction")}
+            <Clipboard className="w-4 h-4 mr-2" />
+            {isParsing ? "Analyzing..." : "Paste Bank SMS"}
           </Button>
-        )}
+          {!showPasteInput && (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setShowPasteInput(true)}
+              className="border-dashed"
+            >
+              <Sparkles className="w-4 h-4" />
+            </Button>
+          )}
+        </div>
 
         {showPasteInput && (
           <div className="space-y-3 mb-4 p-3 border border-primary/20 rounded-lg bg-primary/5">
@@ -237,6 +315,70 @@ export const TransactionEntry = ({ onAddTransaction, categories, onCategoriesCha
             {t("addTransaction")}
           </Button>
         </form>
+
+        <Dialog open={showApprovalDialog} onOpenChange={setShowApprovalDialog}>
+          <DialogContent className="sm:max-w-[500px]">
+            <DialogHeader>
+              <DialogTitle>Review Transaction Details</DialogTitle>
+              <DialogDescription>
+                Review and modify the parsed transaction details before adding it.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="dialog-amount">Amount (KWD)</Label>
+                <Input
+                  id="dialog-amount"
+                  type="text"
+                  inputMode="decimal"
+                  value={parsedData?.amount || ""}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (parsedData && (value === '' || /^\d*\.?\d{0,3}$/.test(value))) {
+                      setParsedData({ ...parsedData, amount: value });
+                    }
+                  }}
+                  className="text-xl font-semibold"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="dialog-category">Category</Label>
+                <Select 
+                  value={parsedData?.category || ""} 
+                  onValueChange={(value) => parsedData && setParsedData({ ...parsedData, category: value })}
+                >
+                  <SelectTrigger id="dialog-category">
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-popover max-h-[300px]">
+                    {categories.map((cat) => (
+                      <SelectItem key={cat} value={cat}>
+                        {cat}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="dialog-description">Description</Label>
+                <Textarea
+                  id="dialog-description"
+                  value={parsedData?.description || ""}
+                  onChange={(e) => parsedData && setParsedData({ ...parsedData, description: e.target.value })}
+                  rows={3}
+                />
+              </div>
+            </div>
+            <DialogFooter className="flex gap-2">
+              <Button type="button" variant="outline" onClick={handleCancelApproval}>
+                Cancel
+              </Button>
+              <Button type="button" onClick={handleApproveTransaction} className="bg-gradient-success">
+                Approve & Add
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </CardContent>
     </Card>
   );
