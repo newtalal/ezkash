@@ -58,7 +58,8 @@ export const BudgetSettings = ({ monthlyBudget, salaryDate, onSave }: BudgetSett
           <Label htmlFor="monthly-budget" className="text-sm">{t("monthlyBudget")} ({t("kwd")})</Label>
           <Input
             id="monthly-budget"
-            type="number"
+            type="text"
+            inputMode="decimal"
             value={budget}
             onChange={(e) => setBudget(parseFloat(e.target.value) || 0)}
             placeholder={t("monthlyBudget")}
@@ -73,7 +74,8 @@ export const BudgetSettings = ({ monthlyBudget, salaryDate, onSave }: BudgetSett
           <Label htmlFor="salary-date" className="text-sm">{t("salaryDepositDate")}</Label>
           <Input
             id="salary-date"
-            type="number"
+            type="text"
+            inputMode="numeric"
             min="1"
             max="31"
             value={date}
