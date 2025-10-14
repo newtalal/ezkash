@@ -211,8 +211,8 @@ export const AccountsOverview = () => {
                 <Label htmlFor="new-account-balance" className="text-xs">{t("balance")} ({t("kwd")})</Label>
                 <Input
                   id="new-account-balance"
-                  type="number"
-                  step="0.001"
+                  type="text"
+                  inputMode="decimal"
                   value={newAccount.balance}
                   onChange={(e) => setNewAccount({ ...newAccount, balance: e.target.value })}
                   placeholder="0.000"
@@ -256,8 +256,8 @@ export const AccountsOverview = () => {
                     <Label htmlFor={`edit-balance-${account.id}`} className="text-xs">{t("balance")} ({t("kwd")})</Label>
                     <Input
                       id={`edit-balance-${account.id}`}
-                      type="number"
-                      step="0.001"
+                      type="text"
+                      inputMode="decimal"
                       value={editForm.balance}
                       onChange={(e) => setEditForm({ ...editForm, balance: e.target.value })}
                       className="h-8"
