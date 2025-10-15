@@ -7,9 +7,9 @@ export const NavigationTabs = () => {
   
   const navItems = [
     { to: "/dashboard", icon: LayoutDashboard, label: t("dashboard") },
+    { to: "/expenses", icon: Receipt, label: t("expenses") },
     { to: "/accounts", icon: Wallet, label: t("accounts") },
     { to: "/settings", icon: Settings, label: t("settings") },
-    { to: "/expenses", icon: Receipt, label: t("expenses") },
   ];
 
   return (
