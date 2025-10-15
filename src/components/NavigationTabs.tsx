@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { LayoutDashboard, Settings, Receipt } from "lucide-react";
+import { LayoutDashboard, Settings, Receipt, Wallet } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 export const NavigationTabs = () => {
@@ -7,6 +7,7 @@ export const NavigationTabs = () => {
   
   const navItems = [
     { to: "/dashboard", icon: LayoutDashboard, label: t("dashboard") },
+    { to: "/accounts", icon: Wallet, label: t("accounts") },
     { to: "/settings", icon: Settings, label: t("settings") },
     { to: "/expenses", icon: Receipt, label: t("expenses") },
   ];

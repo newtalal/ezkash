@@ -9,6 +9,7 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Settings from "./pages/Settings";
+import Accounts from "./pages/Accounts";
 import Expenses from "./pages/Expenses";
 import NotFound from "./pages/NotFound";
 
@@ -26,6 +27,7 @@ function App() {
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/accounts" element={<Accounts />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/expenses" element={<Expenses />} />
               <Route path="*" element={<NotFound />} />
