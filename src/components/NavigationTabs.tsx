@@ -13,7 +13,7 @@ export const NavigationTabs = () => {
   ];
 
   return (
-    <nav className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-[56px] sm:top-[64px] z-40">
+    <nav className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-[calc(56px+env(safe-area-inset-top))] sm:top-[calc(64px+env(safe-area-inset-top))] z-40">
       <div className="w-full max-w-7xl mx-auto px-3 sm:px-4">
         <div className="flex items-center gap-1 sm:gap-2 overflow-x-auto no-scrollbar">
           {navItems.map((item) => (
