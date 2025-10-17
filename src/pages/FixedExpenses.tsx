@@ -95,13 +95,29 @@ const FixedExpenses = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const { error } = await supabase.from("fixed_expenses").insert({
+      const expenseAmount = parseFloat(amount);
+
+      // Insert the fixed expense
+      const { error: expenseError } = await supabase.from("fixed_expenses").insert({
         user_id: user.id,
         description: description.trim(),
-        amount: parseFloat(amount),
+        amount: expenseAmount,
       });
 
-      if (error) throw error;
+      if (expenseError) throw expenseError;
+
+      // Also record it as a transaction
+      const { error: transactionError } = await supabase.from("transactions").insert({
+        user_id: user.id,
+        type: "expense",
+        amount: expenseAmount,
+        category: "📌 Fixed Expense",
+        description: description.trim(),
+        payment_method: "Fixed Monthly",
+        date: new Date().toISOString(),
+      });
+
+      if (transactionError) throw transactionError;
 
       toast({
         title: t("expenseAdded"),

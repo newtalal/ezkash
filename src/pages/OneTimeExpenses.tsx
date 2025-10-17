@@ -95,13 +95,29 @@ const OneTimeExpenses = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const { error } = await supabase.from("one_time_expenses").insert({
+      const expenseAmount = parseFloat(amount);
+
+      // Insert the one-time expense
+      const { error: expenseError } = await supabase.from("one_time_expenses").insert({
         user_id: user.id,
         description: description.trim(),
-        amount: parseFloat(amount),
+        amount: expenseAmount,
       });
 
-      if (error) throw error;
+      if (expenseError) throw expenseError;
+
+      // Also record it as a transaction
+      const { error: transactionError } = await supabase.from("transactions").insert({
+        user_id: user.id,
+        type: "expense",
+        amount: expenseAmount,
+        category: "📌 One-Time Expense",
+        description: description.trim(),
+        payment_method: "One-Time",
+        date: new Date().toISOString(),
+      });
+
+      if (transactionError) throw transactionError;
 
       toast({
         title: t("expenseAdded"),
