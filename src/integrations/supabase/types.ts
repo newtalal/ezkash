@@ -14,6 +14,66 @@ export type Database = {
   }
   public: {
     Tables: {
+      fixed_expenses: {
+        Row: {
+          amount: number
+          created_at: string
+          description: string
+          id: string
+          is_paid: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          description: string
+          id?: string
+          is_paid?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          description?: string
+          id?: string
+          is_paid?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      one_time_expenses: {
+        Row: {
+          amount: number
+          created_at: string
+          description: string
+          id: string
+          is_paid: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          description: string
+          id?: string
+          is_paid?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          description?: string
+          id?: string
+          is_paid?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string

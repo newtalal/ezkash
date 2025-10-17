@@ -3,6 +3,7 @@ import { DashboardNav } from "@/components/DashboardNav";
 import { SpendingPower } from "@/components/SpendingPower";
 import { TransactionList } from "@/components/TransactionList";
 import { NavigationTabs } from "@/components/NavigationTabs";
+import { NetSpendableCard } from "@/components/NetSpendableCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TrendingDown, Wallet } from "lucide-react";
 import { Account } from "@/components/AccountsOverview";
@@ -121,7 +122,7 @@ const Dashboard = () => {
       <NavigationTabs />
       <main className="w-full max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-6">
         {/* Summary Cards */}
-        <div className="grid gap-4 sm:gap-6 md:grid-cols-2">
+        <div className="grid gap-4 sm:gap-6 md:grid-cols-3">
           <Card className="shadow-card">
             <CardHeader className="p-4 sm:p-6">
               <CardTitle className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
@@ -151,6 +152,7 @@ const Dashboard = () => {
             </CardContent>
           </Card>
 
+          <NetSpendableCard totalSpendable={totalSpendable} />
         </div>
 
         {/* Spending Power */}

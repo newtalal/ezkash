@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { LayoutDashboard, Settings, Receipt, Wallet } from "lucide-react";
+import { LayoutDashboard, Settings, Receipt, Wallet, CalendarClock, CalendarCheck } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 export const NavigationTabs = () => {
@@ -8,6 +8,8 @@ export const NavigationTabs = () => {
   const navItems = [
     { to: "/dashboard", icon: LayoutDashboard, label: t("dashboard") },
     { to: "/expenses", icon: Receipt, label: t("expenses") },
+    { to: "/fixed-expenses", icon: CalendarClock, label: t("fixedExpenses") },
+    { to: "/one-time-expenses", icon: CalendarCheck, label: t("oneTimeExpenses") },
     { to: "/accounts", icon: Wallet, label: t("accounts") },
     { to: "/settings", icon: Settings, label: t("settings") },
   ];

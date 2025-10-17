@@ -11,6 +11,8 @@ import Dashboard from "./pages/Dashboard";
 import Settings from "./pages/Settings";
 import Accounts from "./pages/Accounts";
 import Expenses from "./pages/Expenses";
+import FixedExpenses from "./pages/FixedExpenses";
+import OneTimeExpenses from "./pages/OneTimeExpenses";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,8 +30,10 @@ function App() {
               <Route path="/auth" element={<Auth />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/accounts" element={<Accounts />} />
-              <Route path="/settings" element={<Settings />} />
               <Route path="/expenses" element={<Expenses />} />
+              <Route path="/fixed-expenses" element={<FixedExpenses />} />
+              <Route path="/one-time-expenses" element={<OneTimeExpenses />} />
+              <Route path="/settings" element={<Settings />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
