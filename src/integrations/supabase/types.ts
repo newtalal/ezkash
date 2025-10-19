@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      audit_log: {
+        Row: {
+          action: string
+          created_at: string | null
+          id: string
+          ip_hash: string | null
+          meta_json: Json | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string | null
+          id?: string
+          ip_hash?: string | null
+          meta_json?: Json | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string | null
+          id?: string
+          ip_hash?: string | null
+          meta_json?: Json | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       fixed_expenses: {
         Row: {
           amount: number
@@ -76,22 +103,64 @@ export type Database = {
       }
       profiles: {
         Row: {
+          account_locked_until: string | null
           created_at: string
+          failed_login_attempts: number | null
+          full_name: string | null
           id: string
+          is_phone_verified: boolean | null
+          last_login_at: string | null
+          phone: string | null
           updated_at: string
-          username: string | null
+          username: string
         }
         Insert: {
+          account_locked_until?: string | null
           created_at?: string
+          failed_login_attempts?: number | null
+          full_name?: string | null
           id: string
+          is_phone_verified?: boolean | null
+          last_login_at?: string | null
+          phone?: string | null
           updated_at?: string
-          username?: string | null
+          username: string
         }
         Update: {
+          account_locked_until?: string | null
           created_at?: string
+          failed_login_attempts?: number | null
+          full_name?: string | null
           id?: string
+          is_phone_verified?: boolean | null
+          last_login_at?: string | null
+          phone?: string | null
           updated_at?: string
-          username?: string | null
+          username?: string
+        }
+        Relationships: []
+      }
+      strings: {
+        Row: {
+          ar: string
+          created_at: string | null
+          en: string
+          key: string
+          updated_at: string | null
+        }
+        Insert: {
+          ar: string
+          created_at?: string | null
+          en: string
+          key: string
+          updated_at?: string | null
+        }
+        Update: {
+          ar?: string
+          created_at?: string | null
+          en?: string
+          key?: string
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -139,7 +208,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      log_audit_event: {
+        Args: { p_action: string; p_ip_hash?: string; p_meta_json?: Json }
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never
