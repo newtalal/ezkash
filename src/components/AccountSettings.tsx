@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { User, LogOut } from "lucide-react";
+import { User, LogOut, Shield } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -58,7 +58,15 @@ export const AccountSettings = () => {
             </div>
           </div>
         )}
-        <div className="pt-4 border-t">
+        <div className="pt-4 border-t space-y-2">
+          <Button 
+            variant="outline" 
+            onClick={() => navigate("/profile-security")}
+            className="w-full"
+          >
+            <Shield className="w-4 h-4 mr-2" />
+            Profile & Security
+          </Button>
           <Button 
             variant="destructive" 
             onClick={handleSignOut}

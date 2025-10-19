@@ -11,10 +11,34 @@ import { Wallet, LogIn, UserPlus } from "lucide-react";
 import { z } from "zod";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-const authSchema = z.object({
+const signUpSchema = z.object({
+  fullName: z.string().trim().min(2, { message: "Full name must be at least 2 characters" }).max(100),
+  username: z.string().trim().min(3, { message: "Username must be at least 3 characters" }).max(50)
+    .regex(/^[a-z0-9_]+$/, { message: "Username must be lowercase letters, numbers, or underscore only" })
+    .refine((val) => !['admin', 'support', 'ezkash', 'root', 'system'].includes(val), {
+      message: "This username is reserved"
+    }),
   email: z.string().trim().email({ message: "Invalid email address" }).max(255),
-  password: z.string().min(6, { message: "Password must be at least 6 characters" }).max(72),
-  username: z.string().trim().min(2, { message: "Username must be at least 2 characters" }).max(50).optional(),
+  phone: z.string().trim().optional(),
+  password: z.string()
+    .min(10, { message: "Password must be at least 10 characters" })
+    .max(72)
+    .regex(/[A-Z]/, { message: "Password must contain at least one uppercase letter" })
+    .regex(/[a-z]/, { message: "Password must contain at least one lowercase letter" })
+    .regex(/[0-9]/, { message: "Password must contain at least one number" })
+    .regex(/[^A-Za-z0-9]/, { message: "Password must contain at least one special character" }),
+  confirmPassword: z.string(),
+  agreeTerms: z.boolean().refine((val) => val === true, {
+    message: "You must agree to the terms and privacy policy"
+  }),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
+});
+
+const signInSchema = z.object({
+  email: z.string().trim().email({ message: "Invalid email address" }).max(255),
+  password: z.string().min(1, { message: "Password is required" }),
 });
 
 const Auth = () => {
@@ -23,9 +47,20 @@ const Auth = () => {
   const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState("signin");
   const [isLoading, setIsLoading] = useState(false);
+  
+  // Sign In State
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
+  
+  // Sign Up State
+  const [fullName, setFullName] = useState("");
   const [username, setUsername] = useState("");
+  const [signUpEmail, setSignUpEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [signUpPassword, setSignUpPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [agreeTerms, setAgreeTerms] = useState(false);
 
   useEffect(() => {
     const mode = searchParams.get("mode");
@@ -38,7 +73,16 @@ const Auth = () => {
     e.preventDefault();
     
     try {
-      const validated = authSchema.parse({ email, password, username });
+      const validated = signUpSchema.parse({ 
+        fullName, 
+        username, 
+        email: signUpEmail, 
+        phone: phone || undefined,
+        password: signUpPassword, 
+        confirmPassword,
+        agreeTerms 
+      });
+      
       setIsLoading(true);
 
       const { error } = await supabase.auth.signUp({
@@ -46,14 +90,18 @@ const Auth = () => {
         password: validated.password,
         options: {
           data: {
-            username: validated.username || validated.email.split('@')[0],
+            username: validated.username,
+            full_name: validated.fullName,
+            phone: validated.phone || null,
           },
-          emailRedirectTo: `${window.location.origin}/`,
+          emailRedirectTo: `${window.location.origin}/dashboard`,
         },
       });
 
       if (error) {
         if (error.message.includes("already registered")) {
+          toast.error("This email is already registered. Please sign in instead.");
+        } else if (error.message.includes("User already registered")) {
           toast.error("This email is already registered. Please sign in instead.");
         } else {
           toast.error(error.message);
@@ -61,7 +109,14 @@ const Auth = () => {
         return;
       }
 
-      toast.success("Account created successfully!");
+      toast.success("Account created! Please check your email to verify your account.");
+      
+      // Log audit event
+      await supabase.rpc('log_audit_event', {
+        p_action: 'registration_initiated',
+        p_meta_json: { email: validated.email }
+      });
+      
       navigate("/dashboard");
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -78,10 +133,10 @@ const Auth = () => {
     e.preventDefault();
     
     try {
-      const validated = authSchema.parse({ email, password });
+      const validated = signInSchema.parse({ email, password });
       setIsLoading(true);
 
-      const { error } = await supabase.auth.signInWithPassword({
+      const { error, data } = await supabase.auth.signInWithPassword({
         email: validated.email,
         password: validated.password,
       });
@@ -89,10 +144,22 @@ const Auth = () => {
       if (error) {
         if (error.message.includes("Invalid login credentials")) {
           toast.error("Invalid email or password");
+          // Log failed login attempt
+          await supabase.rpc('log_audit_event', {
+            p_action: 'login_failed',
+            p_meta_json: { email: validated.email }
+          });
+        } else if (error.message.includes("Email not confirmed")) {
+          toast.error("Please verify your email before signing in");
         } else {
           toast.error(error.message);
         }
         return;
+      }
+
+      // Update last login timestamp
+      if (data.user) {
+        await supabase.rpc('update_last_login');
       }
 
       toast.success("Signed in successfully!");
@@ -165,8 +232,38 @@ const Auth = () => {
                       disabled={isLoading}
                     />
                   </div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        id="remember-me"
+                        checked={rememberMe}
+                        onChange={(e) => setRememberMe(e.target.checked)}
+                        className="rounded border-input"
+                      />
+                      <Label htmlFor="remember-me" className="text-sm cursor-pointer">
+                        {t("rememberMe") || "Remember me"}
+                      </Label>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="link"
+                      className="p-0 h-auto text-sm"
+                      onClick={() => navigate("/auth/forgot-password")}
+                    >
+                      {t("forgotPassword") || "Forgot Password?"}
+                    </Button>
+                  </div>
                   <Button type="submit" className="w-full" disabled={isLoading}>
                     {isLoading ? t("signingIn") : t("signIn")}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="link"
+                    className="w-full text-sm"
+                    onClick={() => navigate("/auth/forgot-username")}
+                  >
+                    {t("forgotUsername") || "Forgot Username?"}
                   </Button>
                 </form>
               </CardContent>
@@ -185,39 +282,94 @@ const Auth = () => {
               <CardContent>
                 <form onSubmit={handleSignUp} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="signup-username">{t("username")}</Label>
+                    <Label htmlFor="signup-fullname">{t("fullName") || "Full Name"} *</Label>
                     <Input
-                      id="signup-username"
+                      id="signup-fullname"
                       type="text"
-                      placeholder={t("username")}
-                      value={username}
-                      onChange={(e) => setUsername(e.target.value)}
+                      placeholder="John Doe"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      required
                       disabled={isLoading}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="signup-email">{t("email")}</Label>
+                    <Label htmlFor="signup-username">{t("username")} *</Label>
+                    <Input
+                      id="signup-username"
+                      type="text"
+                      placeholder="johndoe"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value.toLowerCase())}
+                      required
+                      disabled={isLoading}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Lowercase letters, numbers, and underscore only
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-email">{t("email")} *</Label>
                     <Input
                       id="signup-email"
                       type="email"
                       placeholder="your@email.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      value={signUpEmail}
+                      onChange={(e) => setSignUpEmail(e.target.value)}
                       required
                       disabled={isLoading}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="signup-password">{t("password")}</Label>
+                    <Label htmlFor="signup-phone">{t("phone") || "Phone (Optional)"}</Label>
+                    <Input
+                      id="signup-phone"
+                      type="tel"
+                      placeholder="+1234567890"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      disabled={isLoading}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-password">{t("password")} *</Label>
                     <Input
                       id="signup-password"
                       type="password"
                       placeholder="••••••••"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
+                      value={signUpPassword}
+                      onChange={(e) => setSignUpPassword(e.target.value)}
                       required
                       disabled={isLoading}
                     />
+                    <p className="text-xs text-muted-foreground">
+                      Min 10 chars, include uppercase, lowercase, number, and symbol
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-confirm-password">{t("confirmPassword") || "Confirm Password"} *</Label>
+                    <Input
+                      id="signup-confirm-password"
+                      type="password"
+                      placeholder="••••••••"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      required
+                      disabled={isLoading}
+                    />
+                  </div>
+                  <div className="flex items-start space-x-2">
+                    <input
+                      type="checkbox"
+                      id="agree-terms"
+                      checked={agreeTerms}
+                      onChange={(e) => setAgreeTerms(e.target.checked)}
+                      required
+                      className="rounded border-input mt-1"
+                    />
+                    <Label htmlFor="agree-terms" className="text-sm cursor-pointer">
+                      {t("agreeTerms") || "I agree to Terms & Privacy"} *
+                    </Label>
                   </div>
                   <Button type="submit" className="w-full" disabled={isLoading}>
                     {isLoading ? t("creatingAccount") : t("signUp")}

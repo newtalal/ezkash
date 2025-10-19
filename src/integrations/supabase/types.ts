@@ -212,6 +212,10 @@ export type Database = {
         Args: { p_action: string; p_ip_hash?: string; p_meta_json?: Json }
         Returns: string
       }
+      update_last_login: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

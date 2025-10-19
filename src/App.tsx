@@ -7,8 +7,12 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
+import ForgotPassword from "./pages/ForgotPassword";
+import ForgotUsername from "./pages/ForgotUsername";
+import ResetPassword from "./pages/ResetPassword";
 import Dashboard from "./pages/Dashboard";
 import Settings from "./pages/Settings";
+import ProfileSecurity from "./pages/ProfileSecurity";
 import Accounts from "./pages/Accounts";
 import Expenses from "./pages/Expenses";
 import FixedExpenses from "./pages/FixedExpenses";
@@ -28,12 +32,16 @@ function App() {
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
+              <Route path="/auth/forgot-password" element={<ForgotPassword />} />
+              <Route path="/auth/forgot-username" element={<ForgotUsername />} />
+              <Route path="/auth/reset-password" element={<ResetPassword />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/accounts" element={<Accounts />} />
               <Route path="/expenses" element={<Expenses />} />
               <Route path="/fixed-expenses" element={<FixedExpenses />} />
               <Route path="/one-time-expenses" element={<OneTimeExpenses />} />
               <Route path="/settings" element={<Settings />} />
+              <Route path="/profile-security" element={<ProfileSecurity />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
