@@ -19,7 +19,6 @@ const signUpSchema = z.object({
       message: "This username is reserved"
     }),
   email: z.string().trim().email({ message: "Invalid email address" }).max(255),
-  phone: z.string().trim().optional(),
   password: z.string()
     .min(10, { message: "Password must be at least 10 characters" })
     .max(72)
@@ -57,7 +56,6 @@ const Auth = () => {
   const [fullName, setFullName] = useState("");
   const [username, setUsername] = useState("");
   const [signUpEmail, setSignUpEmail] = useState("");
-  const [phone, setPhone] = useState("");
   const [signUpPassword, setSignUpPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [agreeTerms, setAgreeTerms] = useState(false);
@@ -77,7 +75,6 @@ const Auth = () => {
         fullName, 
         username, 
         email: signUpEmail, 
-        phone: phone || undefined,
         password: signUpPassword, 
         confirmPassword,
         agreeTerms 
@@ -92,7 +89,6 @@ const Auth = () => {
           data: {
             username: validated.username,
             full_name: validated.fullName,
-            phone: validated.phone || null,
           },
           emailRedirectTo: `${window.location.origin}/dashboard`,
         },
@@ -317,17 +313,6 @@ const Auth = () => {
                       value={signUpEmail}
                       onChange={(e) => setSignUpEmail(e.target.value)}
                       required
-                      disabled={isLoading}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-phone">{t("phone") || "Phone (Optional)"}</Label>
-                    <Input
-                      id="signup-phone"
-                      type="tel"
-                      placeholder="+1234567890"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
                       disabled={isLoading}
                     />
                   </div>
