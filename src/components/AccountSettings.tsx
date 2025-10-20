@@ -52,10 +52,6 @@ export const AccountSettings = () => {
               <Label className="text-sm text-muted-foreground">{t("email")}</Label>
               <p className="text-sm font-medium mt-1">{user.email}</p>
             </div>
-            <div>
-              <Label className="text-sm text-muted-foreground">{t("userId")}</Label>
-              <p className="text-sm font-mono mt-1 truncate">{user.id}</p>
-            </div>
           </div>
         )}
         <div className="pt-4 border-t space-y-2">
