@@ -208,6 +208,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      delete_user_account: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       log_audit_event: {
         Args: { p_action: string; p_ip_hash?: string; p_meta_json?: Json }
         Returns: string

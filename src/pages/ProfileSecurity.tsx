@@ -193,15 +193,22 @@ const ProfileSecurity = () => {
 
   const handleDeleteAccount = async () => {
     try {
-      // In a production app, you'd want to soft delete and have a grace period
-      await supabase.rpc('log_audit_event', {
-        p_action: 'account_deletion_requested'
-      });
+      setIsLoading(true);
       
-      toast.info("Account deletion requested. Contact support to complete this action.");
-      // In production: implement soft delete with 7-day grace period
+      const { error } = await supabase.rpc('delete_user_account');
+      
+      if (error) {
+        toast.error("Failed to delete account: " + error.message);
+        return;
+      }
+      
+      toast.success("Account deleted successfully");
+      // User will be automatically signed out after account deletion
+      navigate("/auth");
     } catch (error) {
-      toast.error("An error occurred");
+      toast.error("An error occurred while deleting your account");
+    } finally {
+      setIsLoading(false);
     }
   };
 
