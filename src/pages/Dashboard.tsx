@@ -37,8 +37,8 @@ const defaultCategories = [
 const Dashboard = () => {
   const { toast } = useToast();
   const { t } = useLanguage();
-  const [monthlyIncome, setMonthlyIncome] = useState(() => {
-    const saved = localStorage.getItem("monthlyIncome");
+  const [monthlyBudget, setMonthlyBudget] = useState(() => {
+    const saved = localStorage.getItem("monthlyBudget");
     return saved ? parseFloat(saved) : 1500;
   });
 
@@ -92,10 +92,10 @@ const Dashboard = () => {
   });
 
   useEffect(() => {
-    localStorage.setItem("monthlyIncome", monthlyIncome.toString());
+    localStorage.setItem("monthlyBudget", monthlyBudget.toString());
     localStorage.setItem("salaryDate", salaryDate.toString());
     localStorage.setItem("transactions", JSON.stringify(transactions));
-  }, [monthlyIncome, salaryDate, transactions]);
+  }, [monthlyBudget, salaryDate, transactions]);
 
   const deleteTransaction = (id: string) => {
     setTransactions(transactions.filter(t => t.id !== id));
@@ -158,7 +158,7 @@ const Dashboard = () => {
         {/* Spending Power */}
         <SpendingPower 
           transactions={transactions} 
-          monthlyIncome={monthlyIncome}
+          monthlyIncome={monthlyBudget}
           salaryDate={salaryDate}
         />
 
