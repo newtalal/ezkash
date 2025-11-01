@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Settings } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { supabase } from "@/integrations/supabase/client";
 
 interface BudgetSettingsProps {
   monthlyBudget: number;
@@ -19,7 +20,7 @@ export const BudgetSettings = ({ monthlyBudget, salaryDate, onSave }: BudgetSett
   const { toast } = useToast();
   const { t } = useLanguage();
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (budget <= 0) {
       toast({
         title: t("invalidBudget"),
@@ -38,11 +39,42 @@ export const BudgetSettings = ({ monthlyBudget, salaryDate, onSave }: BudgetSett
       return;
     }
 
-    onSave(budget, date);
-    toast({
-      title: t("budgetSettingsSaved"),
-      description: t("monthlyBudgetUpdated"),
-    });
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({
+          title: "Error",
+          description: "You must be logged in",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const { error } = await supabase
+        .from('user_settings')
+        .upsert({
+          user_id: user.id,
+          monthly_budget: budget,
+          salary_date: date
+        }, {
+          onConflict: 'user_id'
+        });
+
+      if (error) throw error;
+
+      onSave(budget, date);
+      toast({
+        title: t("budgetSettingsSaved"),
+        description: t("monthlyBudgetUpdated"),
+      });
+    } catch (error) {
+      console.error('Error saving settings:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save settings",
+        variant: "destructive",
+      });
+    }
   };
 
   return (

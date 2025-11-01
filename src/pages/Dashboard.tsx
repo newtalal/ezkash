@@ -9,6 +9,7 @@ import { TrendingDown, Wallet } from "lucide-react";
 import { Account } from "@/components/AccountsOverview";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { supabase } from "@/integrations/supabase/client";
 
 export interface Transaction {
   id: string;
@@ -37,72 +38,97 @@ const defaultCategories = [
 const Dashboard = () => {
   const { toast } = useToast();
   const { t } = useLanguage();
-  const [monthlyBudget, setMonthlyBudget] = useState(() => {
-    const saved = localStorage.getItem("monthlyBudget");
-    return saved ? parseFloat(saved) : 1500;
-  });
-
-  const [categories] = useState<string[]>(() => {
-    const saved = localStorage.getItem("categories");
-    return saved ? JSON.parse(saved) : defaultCategories;
-  });
-
-  const [salaryDate, setSalaryDate] = useState(() => {
-    const saved = localStorage.getItem("salaryDate");
-    return saved ? parseInt(saved) : 20;
-  });
-
-  const [transactions, setTransactions] = useState<Transaction[]>(() => {
-    const saved = localStorage.getItem("transactions");
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      return parsed.map((t: any) => ({
-        ...t,
-        date: new Date(t.date)
-      }));
-    }
-    return [
-      {
-        id: "1",
-        type: "expense",
-        amount: 25.50,
-        category: "🍕 Food",
-        description: "Lunch at restaurant",
-        paymentMethod: "Credit Card",
-        date: new Date(),
-      },
-      {
-        id: "2",
-        type: "income",
-        amount: 1000,
-        category: "💰 Salary",
-        description: "Monthly salary",
-        paymentMethod: "Current Account",
-        date: new Date(),
-      },
-    ];
-  });
-
-  const [accounts, setAccounts] = useState<Account[]>(() => {
-    const saved = localStorage.getItem("accounts");
-    if (saved) {
-      return JSON.parse(saved);
-    }
-    return [];
-  });
+  const [monthlyBudget, setMonthlyBudget] = useState(1500);
+  const [salaryDate, setSalaryDate] = useState(20);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [accounts, setAccounts] = useState<Account[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    localStorage.setItem("monthlyBudget", monthlyBudget.toString());
-    localStorage.setItem("salaryDate", salaryDate.toString());
-    localStorage.setItem("transactions", JSON.stringify(transactions));
-  }, [monthlyBudget, salaryDate, transactions]);
+    fetchData();
+  }, []);
 
-  const deleteTransaction = (id: string) => {
-    setTransactions(transactions.filter(t => t.id !== id));
-    toast({
-      title: "Transaction Deleted",
-      description: "The transaction has been removed successfully",
-    });
+  const fetchData = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      // Fetch settings
+      const { data: settings } = await supabase
+        .from('user_settings')
+        .select('*')
+        .eq('user_id', user.id)
+        .single();
+
+      if (settings) {
+        setMonthlyBudget(Number(settings.monthly_budget));
+        setSalaryDate(Number(settings.salary_date));
+      }
+
+      // Fetch transactions
+      const { data: transactionsData } = await supabase
+        .from('transactions')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('date', { ascending: false });
+
+      if (transactionsData) {
+        setTransactions(transactionsData.map(t => ({
+          id: t.id,
+          type: t.type as "income" | "expense",
+          amount: Number(t.amount),
+          category: t.category,
+          description: t.description || "",
+          paymentMethod: t.payment_method,
+          date: new Date(t.date)
+        })));
+      }
+
+      // Fetch accounts
+      const { data: accountsData } = await supabase
+        .from('accounts')
+        .select('*')
+        .eq('user_id', user.id);
+
+      if (accountsData) {
+        setAccounts(accountsData.map(a => ({
+          id: a.id,
+          name: a.name,
+          balance: Number(a.balance),
+          iconType: a.icon_type,
+          color: a.color,
+          isSpendable: a.is_spendable
+        })));
+      }
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const deleteTransaction = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('transactions')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setTransactions(transactions.filter(t => t.id !== id));
+      toast({
+        title: "Transaction Deleted",
+        description: "The transaction has been removed successfully",
+      });
+    } catch (error) {
+      console.error('Error deleting transaction:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete transaction",
+        variant: "destructive",
+      });
+    }
   };
 
   // Calculate summary stats
@@ -115,6 +141,18 @@ const Dashboard = () => {
     .reduce((sum, t) => sum + t.amount, 0);
 
   const balance = totalSpendable - totalExpenses;
+
+  if (loading) {
+    return (
+      <div className="min-h-dvh bg-background w-full max-w-full overflow-x-hidden">
+        <DashboardNav />
+        <NavigationTabs />
+        <main className="w-full max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-6">
+          <p className="text-center text-muted-foreground">Loading...</p>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-dvh bg-background w-full max-w-full overflow-x-hidden pb-[calc(env(safe-area-inset-bottom)+16px)]">

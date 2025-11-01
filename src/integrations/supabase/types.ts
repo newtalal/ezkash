@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      accounts: {
+        Row: {
+          balance: number
+          color: string
+          created_at: string
+          icon_type: string
+          id: string
+          is_spendable: boolean
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          balance?: number
+          color?: string
+          created_at?: string
+          icon_type?: string
+          id?: string
+          is_spendable?: boolean
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          balance?: number
+          color?: string
+          created_at?: string
+          icon_type?: string
+          id?: string
+          is_spendable?: boolean
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       audit_log: {
         Row: {
           action: string
@@ -38,6 +74,27 @@ export type Database = {
           ip_hash?: string | null
           meta_json?: Json | null
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      categories: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -203,23 +260,44 @@ export type Database = {
         }
         Relationships: []
       }
+      user_settings: {
+        Row: {
+          created_at: string
+          id: string
+          monthly_budget: number
+          salary_date: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          monthly_budget?: number
+          salary_date?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          monthly_budget?: number
+          salary_date?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      delete_user_account: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      delete_user_account: { Args: never; Returns: undefined }
       log_audit_event: {
         Args: { p_action: string; p_ip_hash?: string; p_meta_json?: Json }
         Returns: string
       }
-      update_last_login: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      update_last_login: { Args: never; Returns: undefined }
     }
     Enums: {
       [_ in never]: never

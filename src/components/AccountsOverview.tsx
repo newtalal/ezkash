@@ -7,6 +7,7 @@ import { Switch } from "@/components/ui/switch";
 import { Wallet, CreditCard, PiggyBank, Shield, Pencil, Trash2, Plus, Check, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { supabase } from "@/integrations/supabase/client";
 
 export interface Account {
   id: string;
@@ -30,47 +31,8 @@ const getIcon = (iconType: string) => {
 export const AccountsOverview = () => {
   const { toast } = useToast();
   const { t } = useLanguage();
-  const [accounts, setAccounts] = useState<Account[]>(() => {
-    const saved = localStorage.getItem("accounts");
-    if (saved) {
-      return JSON.parse(saved);
-    }
-    return [
-      {
-        id: "1",
-        name: "Current Account",
-        balance: 850.500,
-        iconType: "wallet",
-        color: "text-primary",
-        isSpendable: true,
-      },
-      {
-        id: "2",
-        name: "Credit Card",
-        balance: 500.000,
-        iconType: "creditCard",
-        color: "text-warning",
-        isSpendable: true,
-      },
-      {
-        id: "3",
-        name: "Savings",
-        balance: 2450.750,
-        iconType: "piggyBank",
-        color: "text-success",
-        isSpendable: false,
-      },
-      {
-        id: "4",
-        name: "Emergency Fund",
-        balance: 1000.000,
-        iconType: "shield",
-        color: "text-accent-foreground",
-        isSpendable: false,
-      },
-    ];
-  });
-
+  const [accounts, setAccounts] = useState<Account[]>([]);
+  const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState({ name: "", balance: "" });
   const [showAddForm, setShowAddForm] = useState(false);
@@ -83,8 +45,37 @@ export const AccountsOverview = () => {
   });
 
   useEffect(() => {
-    localStorage.setItem("accounts", JSON.stringify(accounts));
-  }, [accounts]);
+    fetchAccounts();
+  }, []);
+
+  const fetchAccounts = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from('accounts')
+        .select('*')
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      if (data) {
+        setAccounts(data.map(a => ({
+          id: a.id,
+          name: a.name,
+          balance: Number(a.balance),
+          iconType: a.icon_type,
+          color: a.color,
+          isSpendable: a.is_spendable
+        })));
+      }
+    } catch (error) {
+      console.error('Error fetching accounts:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const spendableBalance = accounts
     .filter(account => account.isSpendable)
@@ -95,7 +86,7 @@ export const AccountsOverview = () => {
     setEditForm({ name: account.name, balance: account.balance.toString() });
   };
 
-  const handleSaveEdit = (id: string) => {
+  const handleSaveEdit = async (id: string) => {
     const balance = parseFloat(editForm.balance);
     if (!editForm.name.trim() || isNaN(balance) || balance < 0) {
       toast({
@@ -106,16 +97,35 @@ export const AccountsOverview = () => {
       return;
     }
 
-    setAccounts(accounts.map(acc => 
-      acc.id === id 
-        ? { ...acc, name: editForm.name.trim(), balance }
-        : acc
-    ));
-    setEditingId(null);
-    toast({
-      title: t("accountUpdated"),
-      description: t("accountDetailsSaved"),
-    });
+    try {
+      const { error } = await supabase
+        .from('accounts')
+        .update({
+          name: editForm.name.trim(),
+          balance
+        })
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setAccounts(accounts.map(acc => 
+        acc.id === id 
+          ? { ...acc, name: editForm.name.trim(), balance }
+          : acc
+      ));
+      setEditingId(null);
+      toast({
+        title: t("accountUpdated"),
+        description: t("accountDetailsSaved"),
+      });
+    } catch (error) {
+      console.error('Error updating account:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update account",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleCancelEdit = () => {
@@ -123,21 +133,56 @@ export const AccountsOverview = () => {
     setEditForm({ name: "", balance: "" });
   };
 
-  const handleDelete = (id: string) => {
-    setAccounts(accounts.filter(acc => acc.id !== id));
-    toast({
-      title: t("accountDeleted"),
-      description: t("accountRemoved"),
-    });
+  const handleDelete = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('accounts')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setAccounts(accounts.filter(acc => acc.id !== id));
+      toast({
+        title: t("accountDeleted"),
+        description: t("accountRemoved"),
+      });
+    } catch (error) {
+      console.error('Error deleting account:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete account",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleToggleSpendable = (id: string) => {
-    setAccounts(accounts.map(acc =>
-      acc.id === id ? { ...acc, isSpendable: !acc.isSpendable } : acc
-    ));
+  const handleToggleSpendable = async (id: string) => {
+    const account = accounts.find(acc => acc.id === id);
+    if (!account) return;
+
+    try {
+      const { error } = await supabase
+        .from('accounts')
+        .update({ is_spendable: !account.isSpendable })
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setAccounts(accounts.map(acc =>
+        acc.id === id ? { ...acc, isSpendable: !acc.isSpendable } : acc
+      ));
+    } catch (error) {
+      console.error('Error toggling spendable:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update account",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleAddAccount = () => {
+  const handleAddAccount = async () => {
     const balance = parseFloat(newAccount.balance);
     if (!newAccount.name.trim() || isNaN(balance) || balance < 0) {
       toast({
@@ -148,28 +193,64 @@ export const AccountsOverview = () => {
       return;
     }
 
-    const account: Account = {
-      id: Date.now().toString(),
-      name: newAccount.name.trim(),
-      balance,
-      iconType: newAccount.iconType,
-      color: newAccount.color,
-      isSpendable: newAccount.isSpendable,
-    };
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({
+          title: "Error",
+          description: "You must be logged in",
+          variant: "destructive",
+        });
+        return;
+      }
 
-    setAccounts([...accounts, account]);
-    setNewAccount({
-      name: "",
-      balance: "",
-      iconType: "wallet",
-      color: "text-primary",
-      isSpendable: true,
-    });
-    setShowAddForm(false);
-    toast({
-      title: t("accountAdded"),
-      description: t("newAccountCreated"),
-    });
+      const { data, error } = await supabase
+        .from('accounts')
+        .insert({
+          user_id: user.id,
+          name: newAccount.name.trim(),
+          balance,
+          icon_type: newAccount.iconType,
+          color: newAccount.color,
+          is_spendable: newAccount.isSpendable
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      if (data) {
+        const account: Account = {
+          id: data.id,
+          name: data.name,
+          balance: Number(data.balance),
+          iconType: data.icon_type,
+          color: data.color,
+          isSpendable: data.is_spendable
+        };
+
+        setAccounts([...accounts, account]);
+        setNewAccount({
+          name: "",
+          balance: "",
+          iconType: "wallet",
+          color: "text-primary",
+          isSpendable: true,
+        });
+        setShowAddForm(false);
+        toast({
+          title: t("accountAdded"),
+          description: t("newAccountCreated"),
+        });
+      }
+    } catch (error) {
+      console.error('Error adding account:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add account",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -188,11 +269,15 @@ export const AccountsOverview = () => {
         </div>
       </CardHeader>
       <CardContent className="space-y-3 sm:space-y-4 p-4 sm:p-6 pt-0">
-        <div className="p-3 sm:p-4 rounded-xl bg-gradient-primary text-primary-foreground">
-          <p className="text-xs sm:text-sm opacity-90 mb-1">{t("totalSpendable")}</p>
-          <p className="text-2xl sm:text-3xl font-bold">{spendableBalance.toFixed(3)} {t("kwd")}</p>
-          <p className="text-[10px] sm:text-xs opacity-75 mt-1">{t("fromActiveAccounts")}</p>
-        </div>
+        {loading ? (
+          <p className="text-center text-muted-foreground py-8">Loading...</p>
+        ) : (
+          <>
+            <div className="p-3 sm:p-4 rounded-xl bg-gradient-primary text-primary-foreground">
+              <p className="text-xs sm:text-sm opacity-90 mb-1">{t("totalSpendable")}</p>
+              <p className="text-2xl sm:text-3xl font-bold">{spendableBalance.toFixed(3)} {t("kwd")}</p>
+              <p className="text-[10px] sm:text-xs opacity-75 mt-1">{t("fromActiveAccounts")}</p>
+            </div>
 
         {showAddForm && (
           <Card className="p-3 sm:p-4 bg-muted/30">
@@ -321,6 +406,8 @@ export const AccountsOverview = () => {
             </div>
           ))}
         </div>
+          </>
+        )}
       </CardContent>
     </Card>
   );
