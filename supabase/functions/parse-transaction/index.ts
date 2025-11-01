@@ -14,9 +14,27 @@ serve(async (req) => {
     const { transactionText } = await req.json();
     console.log("Parsing transaction text:", transactionText);
 
+    const MAX_TRANSACTION_TEXT_LENGTH = 2000;
+
     if (!transactionText || typeof transactionText !== 'string') {
       return new Response(
         JSON.stringify({ error: "Transaction text is required" }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    if (transactionText.length > MAX_TRANSACTION_TEXT_LENGTH) {
+      return new Response(
+        JSON.stringify({ 
+          error: `Transaction text is too long. Maximum ${MAX_TRANSACTION_TEXT_LENGTH} characters allowed.` 
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    if (transactionText.trim().length === 0) {
+      return new Response(
+        JSON.stringify({ error: "Transaction text cannot be empty" }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
