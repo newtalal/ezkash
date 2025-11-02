@@ -11,6 +11,16 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Settings, Trash2, Plus } from "lucide-react";
 import { toast } from "sonner";
 
@@ -22,6 +32,7 @@ interface CategoryManagerProps {
 export const CategoryManager = ({ categories, onCategoriesChange }: CategoryManagerProps) => {
   const [newCategory, setNewCategory] = useState("");
   const [emoji, setEmoji] = useState("");
+  const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null);
 
   const handleAddCategory = () => {
     if (!newCategory.trim()) {
@@ -42,14 +53,18 @@ export const CategoryManager = ({ categories, onCategoriesChange }: CategoryMana
     toast.success("Category added successfully!");
   };
 
-  const handleRemoveCategory = (category: string) => {
+  const handleRemoveCategory = () => {
+    if (!categoryToDelete) return;
+    
     if (categories.length <= 1) {
       toast.error("You must have at least one category");
+      setCategoryToDelete(null);
       return;
     }
 
-    onCategoriesChange(categories.filter(c => c !== category));
+    onCategoriesChange(categories.filter(c => c !== categoryToDelete));
     toast.success("Category removed successfully!");
+    setCategoryToDelete(null);
   };
 
   return (
@@ -117,7 +132,7 @@ export const CategoryManager = ({ categories, onCategoriesChange }: CategoryMana
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => handleRemoveCategory(category)}
+                      onClick={() => setCategoryToDelete(category)}
                       className="h-8 w-8 text-muted-foreground hover:text-destructive"
                     >
                       <Trash2 className="h-4 w-4" />
@@ -129,6 +144,24 @@ export const CategoryManager = ({ categories, onCategoriesChange }: CategoryMana
           </div>
         </ScrollArea>
       </SheetContent>
+
+      <AlertDialog open={!!categoryToDelete} onOpenChange={(open) => !open && setCategoryToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Category</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "{categoryToDelete}"? This action cannot be undone.
+              Any transactions using this category will be moved to "📌 Other".
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleRemoveCategory} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Sheet>
   );
 };
