@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { DashboardNav } from "@/components/DashboardNav";
-import { SpendingPower } from "@/components/SpendingPower";
 import { TransactionList } from "@/components/TransactionList";
 import { NavigationTabs } from "@/components/NavigationTabs";
 import { NetSpendableCard } from "@/components/NetSpendableCard";
@@ -13,7 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 export interface Transaction {
   id: string;
-  type: "income" | "expense";
+  type: "expense";
   amount: number;
   category: string;
   description: string;
@@ -21,25 +20,9 @@ export interface Transaction {
   date: Date;
 }
 
-const defaultCategories = [
-  "🍕 Food",
-  "🚗 Transport",
-  "🏠 Housing",
-  "💡 Utilities",
-  "🛍️ Shopping",
-  "🎬 Entertainment",
-  "💰 Salary",
-  "💸 Other Income",
-  "📱 Subscriptions",
-  "💊 Health",
-  "📌 Other",
-];
-
 const Dashboard = () => {
   const { toast } = useToast();
   const { t } = useLanguage();
-  const [monthlyBudget, setMonthlyBudget] = useState(1500);
-  const [salaryDate, setSalaryDate] = useState(20);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [loading, setLoading] = useState(true);
@@ -53,18 +36,6 @@ const Dashboard = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      // Fetch settings
-      const { data: settings } = await supabase
-        .from('user_settings')
-        .select('*')
-        .eq('user_id', user.id)
-        .single();
-
-      if (settings) {
-        setMonthlyBudget(Number(settings.monthly_budget));
-        setSalaryDate(Number(settings.salary_date));
-      }
-
       // Fetch transactions
       const { data: transactionsData } = await supabase
         .from('transactions')
@@ -75,7 +46,7 @@ const Dashboard = () => {
       if (transactionsData) {
         setTransactions(transactionsData.map(t => ({
           id: t.id,
-          type: t.type as "income" | "expense",
+          type: t.type as "expense",
           amount: Number(t.amount),
           category: t.category,
           description: t.description || "",
@@ -193,17 +164,9 @@ const Dashboard = () => {
           <NetSpendableCard totalSpendable={totalSpendable} />
         </div>
 
-        {/* Spending Power */}
-        <SpendingPower 
-          transactions={transactions} 
-          monthlyIncome={monthlyBudget}
-          salaryDate={salaryDate}
-        />
-
         {/* Recent Transactions */}
         <TransactionList 
           transactions={transactions.slice(0, 10)}
-          salaryDate={salaryDate}
           onDelete={deleteTransaction}
         />
       </main>

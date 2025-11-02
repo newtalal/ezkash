@@ -6,16 +6,7 @@ import { TransactionList } from "@/components/TransactionList";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
-
-export interface Transaction {
-  id: string;
-  type: "income" | "expense";
-  amount: number;
-  category: string;
-  description: string;
-  paymentMethod: string;
-  date: Date;
-}
+import { Transaction } from "@/pages/Dashboard";
 
 const defaultCategories = [
   "🍕 Food",
@@ -24,8 +15,6 @@ const defaultCategories = [
   "💡 Utilities",
   "🛍️ Shopping",
   "🎬 Entertainment",
-  "💰 Salary",
-  "💸 Other Income",
   "📱 Subscriptions",
   "💊 Health",
   "📌 Other",
@@ -34,7 +23,6 @@ const defaultCategories = [
 const Expenses = () => {
   const { toast } = useToast();
   const { t } = useLanguage();
-  const [salaryDate, setSalaryDate] = useState(20);
   const [categories, setCategories] = useState<string[]>(defaultCategories);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
@@ -47,17 +35,6 @@ const Expenses = () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
-
-      // Fetch settings for salary date
-      const { data: settings } = await supabase
-        .from('user_settings')
-        .select('salary_date')
-        .eq('user_id', user.id)
-        .single();
-
-      if (settings) {
-        setSalaryDate(Number(settings.salary_date));
-      }
 
       // Fetch categories
       const { data: categoriesData } = await supabase
@@ -79,7 +56,7 @@ const Expenses = () => {
       if (transactionsData) {
         setTransactions(transactionsData.map(t => ({
           id: t.id,
-          type: t.type as "income" | "expense",
+          type: t.type as "expense",
           amount: Number(t.amount),
           category: t.category,
           description: t.description || "",
@@ -174,7 +151,7 @@ const Expenses = () => {
       if (data) {
         const newTransaction: Transaction = {
           id: data.id,
-          type: data.type as "income" | "expense",
+          type: data.type as "expense",
           amount: Number(data.amount),
           category: data.category,
           description: data.description || "",
@@ -241,7 +218,6 @@ const Expenses = () => {
         />
         <TransactionList 
           transactions={transactions}
-          salaryDate={salaryDate}
           onDelete={deleteTransaction}
         />
       </main>

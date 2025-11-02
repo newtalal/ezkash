@@ -22,25 +22,21 @@ import {
 import { Transaction } from "@/pages/Dashboard";
 import { format } from "date-fns";
 import { Receipt, Trash2 } from "lucide-react";
-import { getCurrentCycle } from "@/lib/cycleUtils";
+
 import { useLanguage } from "@/contexts/LanguageContext";
 
 interface TransactionListProps {
   transactions: Transaction[];
-  salaryDate: number;
   onDelete: (id: string) => void;
 }
 
-export const TransactionList = ({ transactions, salaryDate, onDelete }: TransactionListProps) => {
+export const TransactionList = ({ transactions, onDelete }: TransactionListProps) => {
   const { t } = useLanguage();
-  const { startDate, endDate } = getCurrentCycle(salaryDate);
   
-  const cycleTransactions = transactions
-    .filter((t) => t.date >= startDate && t.date <= endDate)
+  const sortedTransactions = transactions
     .sort((a, b) => b.date.getTime() - a.date.getTime());
 
-  const totalSpentThisCycle = cycleTransactions
-    .filter((t) => t.type === "expense")
+  const totalSpent = sortedTransactions
     .reduce((sum, t) => sum + t.amount, 0);
 
   return (
@@ -49,21 +45,21 @@ export const TransactionList = ({ transactions, salaryDate, onDelete }: Transact
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
             <Receipt className="w-5 h-5 text-primary" />
-            {t("thisCycleTransactions")}
+            {t("recentTransactions")}
           </CardTitle>
           <div className="text-right">
             <p className="text-sm text-muted-foreground">{t("totalSpent")}</p>
             <p className="text-2xl font-bold text-destructive">
-              {totalSpentThisCycle.toFixed(3)} {t("kwd")}
+              {totalSpent.toFixed(3)} {t("kwd")}
             </p>
           </div>
         </div>
       </CardHeader>
       <CardContent>
-        {cycleTransactions.length === 0 ? (
+        {sortedTransactions.length === 0 ? (
           <div className="text-center py-12 text-muted-foreground">
             <Receipt className="w-12 h-12 mx-auto mb-3 opacity-20" />
-            <p>{t("noTransactionsCycle")}</p>
+            <p>{t("noTransactions")}</p>
           </div>
         ) : (
           <div className="rounded-lg border border-border overflow-hidden">
@@ -80,7 +76,7 @@ export const TransactionList = ({ transactions, salaryDate, onDelete }: Transact
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {cycleTransactions.map((transaction) => (
+                  {sortedTransactions.map((transaction) => (
                     <TableRow key={transaction.id} className="hover:bg-accent/50">
                       <TableCell className="text-sm text-muted-foreground">
                         {format(transaction.date, "MMM d")}
@@ -94,15 +90,8 @@ export const TransactionList = ({ transactions, salaryDate, onDelete }: Transact
                       <TableCell className="text-sm">
                         {transaction.paymentMethod}
                       </TableCell>
-                      <TableCell
-                        className={`text-right font-semibold ${
-                          transaction.type === "income"
-                            ? "text-success"
-                            : "text-destructive"
-                        }`}
-                      >
-                        {transaction.type === "income" ? "+" : "-"}
-                        {transaction.amount.toFixed(3)} {t("kwd")}
+                      <TableCell className="text-right font-semibold text-destructive">
+                        -{transaction.amount.toFixed(3)} {t("kwd")}
                       </TableCell>
                       <TableCell>
                         <AlertDialog>
