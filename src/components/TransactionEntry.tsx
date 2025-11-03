@@ -85,13 +85,6 @@ export const TransactionEntry = ({ onAddTransaction, categories, onCategoriesCha
     }
   };
 
-  const paymentMethods = [
-    t("creditCard"),
-    t("currentAccount"),
-    t("savingsAccount"),
-    t("cash"),
-    t("emergencyFund"),
-  ];
 
   const handlePasteFromClipboard = async () => {
     setIsParsing(true);
@@ -374,16 +367,17 @@ export const TransactionEntry = ({ onAddTransaction, categories, onCategoriesCha
                 <SelectValue placeholder={t("selectPaymentMethod")} />
               </SelectTrigger>
               <SelectContent className="bg-popover">
-                {accounts.map((account) => (
-                  <SelectItem key={account.id} value={account.name}>
-                    {account.name} ({account.balance.toFixed(3)} {t("kwd")})
+                {accounts.length > 0 ? (
+                  accounts.map((account) => (
+                    <SelectItem key={account.id} value={account.name}>
+                      {account.name} ({account.balance.toFixed(3)} {t("kwd")})
+                    </SelectItem>
+                  ))
+                ) : (
+                  <SelectItem value="" disabled>
+                    No accounts available. Please create an account first.
                   </SelectItem>
-                ))}
-                {paymentMethods.map((method) => (
-                  <SelectItem key={method} value={method}>
-                    {method}
-                  </SelectItem>
-                ))}
+                )}
               </SelectContent>
             </Select>
           </div>
