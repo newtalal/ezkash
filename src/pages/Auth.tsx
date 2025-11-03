@@ -14,11 +14,6 @@ import { TermsDialog } from "@/components/TermsDialog";
 
 const signUpSchema = z.object({
   fullName: z.string().trim().min(2, { message: "Full name must be at least 2 characters" }).max(100),
-  username: z.string().trim().min(3, { message: "Username must be at least 3 characters" }).max(50)
-    .regex(/^[a-z0-9_]+$/, { message: "Username must be lowercase letters, numbers, or underscore only" })
-    .refine((val) => !['admin', 'support', 'ezkash', 'root', 'system'].includes(val), {
-      message: "This username is reserved"
-    }),
   email: z.string().trim().email({ message: "Invalid email address" }).max(255),
   password: z.string()
     .min(10, { message: "Password must be at least 10 characters" })
@@ -55,7 +50,6 @@ const Auth = () => {
   
   // Sign Up State
   const [fullName, setFullName] = useState("");
-  const [username, setUsername] = useState("");
   const [signUpEmail, setSignUpEmail] = useState("");
   const [signUpPassword, setSignUpPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -74,7 +68,6 @@ const Auth = () => {
     try {
       const validated = signUpSchema.parse({ 
         fullName, 
-        username, 
         email: signUpEmail, 
         password: signUpPassword, 
         confirmPassword,
@@ -88,7 +81,6 @@ const Auth = () => {
         password: validated.password,
         options: {
           data: {
-            username: validated.username,
             full_name: validated.fullName,
           },
           emailRedirectTo: `${window.location.origin}/dashboard`,
@@ -190,8 +182,8 @@ const Auth = () => {
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="signin">{t("signIn")}</TabsTrigger>
-            <TabsTrigger value="signup">{t("signUp")}</TabsTrigger>
+            <TabsTrigger value="signin">Sign In</TabsTrigger>
+            <TabsTrigger value="signup">Sign Up</TabsTrigger>
           </TabsList>
 
           <TabsContent value="signin">
@@ -254,14 +246,6 @@ const Auth = () => {
                   <Button type="submit" className="w-full" disabled={isLoading}>
                     {isLoading ? t("signingIn") : t("signIn")}
                   </Button>
-                  <Button
-                    type="button"
-                    variant="link"
-                    className="w-full text-sm"
-                    onClick={() => navigate("/auth/forgot-username")}
-                  >
-                    {t("forgotUsername") || "Forgot Username?"}
-                  </Button>
                 </form>
               </CardContent>
             </Card>
@@ -289,21 +273,6 @@ const Auth = () => {
                       required
                       disabled={isLoading}
                     />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-username">{t("username")} *</Label>
-                    <Input
-                      id="signup-username"
-                      type="text"
-                      placeholder="johndoe"
-                      value={username}
-                      onChange={(e) => setUsername(e.target.value.toLowerCase())}
-                      required
-                      disabled={isLoading}
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      Lowercase letters, numbers, and underscore only
-                    </p>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="signup-email">{t("email")} *</Label>
