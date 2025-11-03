@@ -19,9 +19,9 @@ import FixedExpenses from "./pages/FixedExpenses";
 import OneTimeExpenses from "./pages/OneTimeExpenses";
 import NotFound from "./pages/NotFound";
 
-const queryClient = new QueryClient();
-
 function App() {
+  const queryClient = React.useMemo(() => new QueryClient(), []);
+  
   return (
     <QueryClientProvider client={queryClient}>
       <LanguageProvider>
