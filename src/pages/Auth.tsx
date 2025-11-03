@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { Wallet, LogIn, UserPlus } from "lucide-react";
 import { z } from "zod";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { TermsDialog } from "@/components/TermsDialog";
 
 const signUpSchema = z.object({
   fullName: z.string().trim().min(2, { message: "Full name must be at least 2 characters" }).max(100),
@@ -352,8 +353,17 @@ const Auth = () => {
                       required
                       className="rounded border-input mt-1"
                     />
-                    <Label htmlFor="agree-terms" className="text-sm cursor-pointer">
-                      {t("agreeTerms") || "I agree to Terms & Privacy"} *
+                    <Label htmlFor="agree-terms" className="text-sm leading-relaxed">
+                      {t("iAgreeToThe") || "I agree to the"}{" "}
+                      <TermsDialog>
+                        <button
+                          type="button"
+                          className="text-primary underline hover:text-primary/80 font-medium"
+                        >
+                          {t("termsAndConditions") || "Terms and Conditions"}
+                        </button>
+                      </TermsDialog>
+                      {" *"}
                     </Label>
                   </div>
                   <Button type="submit" className="w-full" disabled={isLoading}>

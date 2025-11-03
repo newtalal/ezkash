@@ -34,6 +34,8 @@ const translations = {
     noAccountRequired: "No Account Required",
     demoModeSaves: "Demo mode saves data locally on your device",
     trackExpensesManage: "Track your expenses and manage your budget",
+    iAgreeToThe: "I agree to the",
+    termsAndConditions: "Terms and Conditions",
     
     // Dashboard
     spendingPower: "Spending Power",
@@ -226,6 +228,8 @@ const translations = {
     noAccountRequired: "لا يلزم حساب",
     demoModeSaves: "الوضع التجريبي يحفظ البيانات محليًا على جهازك",
     trackExpensesManage: "تتبع نفقاتك وأدر ميزانيتك",
+    iAgreeToThe: "أوافق على",
+    termsAndConditions: "الشروط والأحكام",
     
     // Dashboard
     spendingPower: "القوة الشرائية",
