@@ -374,7 +374,7 @@ export const TransactionEntry = ({ onAddTransaction, categories, onCategoriesCha
                     </SelectItem>
                   ))
                 ) : (
-                  <SelectItem value="" disabled>
+                  <SelectItem value="no-accounts" disabled>
                     No accounts available. Please create an account first.
                   </SelectItem>
                 )}
