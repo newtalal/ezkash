@@ -82,7 +82,9 @@ const FixedExpenses = () => {
   };
 
   const handleAdd = async () => {
-    if (!description.trim() || !amount || parseFloat(amount) <= 0) {
+    const expenseAmount = parseFloat(amount);
+    
+    if (!description.trim() || !amount || isNaN(expenseAmount) || expenseAmount <= 0) {
       toast({
         title: t("invalidInput"),
         description: t("pleaseFillRequired"),
@@ -94,8 +96,6 @@ const FixedExpenses = () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
-
-      const expenseAmount = parseFloat(amount);
 
       // Insert the fixed expense
       const { error: expenseError } = await supabase.from("fixed_expenses").insert({

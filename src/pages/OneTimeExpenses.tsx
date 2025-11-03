@@ -82,7 +82,9 @@ const OneTimeExpenses = () => {
   };
 
   const handleAdd = async () => {
-    if (!description.trim() || !amount || parseFloat(amount) <= 0) {
+    const expenseAmount = parseFloat(amount);
+    
+    if (!description.trim() || !amount || isNaN(expenseAmount) || expenseAmount <= 0) {
       toast({
         title: t("invalidInput"),
         description: t("pleaseFillRequired"),
@@ -94,8 +96,6 @@ const OneTimeExpenses = () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
-
-      const expenseAmount = parseFloat(amount);
 
       // Insert the one-time expense
       const { error: expenseError } = await supabase.from("one_time_expenses").insert({

@@ -79,7 +79,7 @@ export const TransactionList = ({ transactions, onDelete }: TransactionListProps
                   {sortedTransactions.map((transaction) => (
                     <TableRow key={transaction.id} className="hover:bg-accent/50">
                       <TableCell className="text-sm text-muted-foreground">
-                        {format(transaction.date, "MMM d")}
+                        {format(transaction.date, "dd-MM-yyyy")}
                       </TableCell>
                       <TableCell className="font-medium">
                         {transaction.category}

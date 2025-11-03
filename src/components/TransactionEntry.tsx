@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,12 +19,20 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Plus, Sparkles, Clipboard } from "lucide-react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { Plus, Sparkles, Clipboard, CalendarIcon } from "lucide-react";
 import { Transaction } from "@/pages/Dashboard";
 import { toast } from "sonner";
 import { CategoryManager } from "@/components/CategoryManager";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 interface TransactionEntryProps {
   onAddTransaction: (transaction: Omit<Transaction, "id">) => void;
@@ -38,6 +46,7 @@ export const TransactionEntry = ({ onAddTransaction, categories, onCategoriesCha
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("");
+  const [date, setDate] = useState<Date>(new Date());
   const [transactionText, setTransactionText] = useState("");
   const [isParsing, setIsParsing] = useState(false);
   const [showPasteInput, setShowPasteInput] = useState(false);
@@ -47,6 +56,34 @@ export const TransactionEntry = ({ onAddTransaction, categories, onCategoriesCha
     description: string;
     category: string;
   } | null>(null);
+  const [accounts, setAccounts] = useState<Array<{ id: string; name: string; balance: number }>>([]);
+
+  useEffect(() => {
+    fetchAccounts();
+  }, []);
+
+  const fetchAccounts = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from('accounts')
+        .select('id, name, balance')
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+      if (data) {
+        setAccounts(data.map(a => ({
+          id: a.id,
+          name: a.name,
+          balance: Number(a.balance)
+        })));
+      }
+    } catch (error) {
+      console.error('Error fetching accounts:', error);
+    }
+  };
 
   const paymentMethods = [
     t("creditCard"),
@@ -62,7 +99,8 @@ export const TransactionEntry = ({ onAddTransaction, categories, onCategoriesCha
       const clipboardText = await navigator.clipboard.readText();
       
       if (!clipboardText.trim()) {
-        toast.error("Clipboard is empty");
+        toast.error("Clipboard is empty. Please copy bank SMS first.");
+        setIsParsing(false);
         return;
       }
 
@@ -72,7 +110,8 @@ export const TransactionEntry = ({ onAddTransaction, categories, onCategoriesCha
 
       if (error) {
         console.error("Error parsing transaction:", error);
-        toast.error(t("failedToParse"));
+        toast.error("Failed to parse transaction");
+        setIsParsing(false);
         return;
       }
 
@@ -83,11 +122,17 @@ export const TransactionEntry = ({ onAddTransaction, categories, onCategoriesCha
           category: data.category
         });
         setShowApprovalDialog(true);
-        toast.success("Bank SMS parsed successfully!");
+        toast.success("Transaction extracted successfully!");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error:", error);
-      toast.error("Failed to read clipboard or parse transaction");
+      if (error.name === 'NotAllowedError' || error.message?.includes('permission')) {
+        toast.error("Clipboard not accessible. Please paste manually below.");
+        setShowPasteInput(true);
+      } else {
+        toast.error("Failed to read clipboard. Please paste manually.");
+        setShowPasteInput(true);
+      }
     } finally {
       setIsParsing(false);
     }
@@ -143,21 +188,58 @@ export const TransactionEntry = ({ onAddTransaction, categories, onCategoriesCha
     setParsedData(null);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!amount || !category || !paymentMethod) {
+    const expenseAmount = parseFloat(amount);
+    
+    // Validation
+    if (!amount || isNaN(expenseAmount) || expenseAmount <= 0) {
+      toast.error("Please enter a valid amount");
+      return;
+    }
+    
+    if (!category || !paymentMethod) {
       toast.error(t("pleaseFillRequired"));
       return;
     }
 
+    // Check account balance if payment method matches an account
+    const matchingAccount = accounts.find(acc => 
+      acc.name.toLowerCase() === paymentMethod.toLowerCase()
+    );
+
+    if (matchingAccount) {
+      if (matchingAccount.balance < expenseAmount) {
+        toast.error("Insufficient funds in selected account.");
+        return;
+      }
+
+      // Deduct from account balance
+      try {
+        const { error } = await supabase
+          .from('accounts')
+          .update({ balance: matchingAccount.balance - expenseAmount })
+          .eq('id', matchingAccount.id);
+
+        if (error) throw error;
+        
+        // Refresh accounts after update
+        await fetchAccounts();
+      } catch (error) {
+        console.error('Error updating account balance:', error);
+        toast.error("Failed to update account balance");
+        return;
+      }
+    }
+
     onAddTransaction({
       type: "expense",
-      amount: parseFloat(amount),
+      amount: expenseAmount,
       category,
       description,
       paymentMethod,
-      date: new Date(),
+      date: date,
     });
 
     // Reset form
@@ -165,6 +247,7 @@ export const TransactionEntry = ({ onAddTransaction, categories, onCategoriesCha
     setCategory("");
     setDescription("");
     setPaymentMethod("");
+    setDate(new Date());
     
     toast.success(t("transactionAdded"));
   };
@@ -291,6 +374,11 @@ export const TransactionEntry = ({ onAddTransaction, categories, onCategoriesCha
                 <SelectValue placeholder={t("selectPaymentMethod")} />
               </SelectTrigger>
               <SelectContent className="bg-popover">
+                {accounts.map((account) => (
+                  <SelectItem key={account.id} value={account.name}>
+                    {account.name} ({account.balance.toFixed(3)} {t("kwd")})
+                  </SelectItem>
+                ))}
                 {paymentMethods.map((method) => (
                   <SelectItem key={method} value={method}>
                     {method}
@@ -298,6 +386,34 @@ export const TransactionEntry = ({ onAddTransaction, categories, onCategoriesCha
                 ))}
               </SelectContent>
             </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="date" className="text-sm">{t("date")}</Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  id="date"
+                  variant="outline"
+                  className={cn(
+                    "w-full justify-start text-left font-normal",
+                    !date && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {date ? format(date, "dd-MM-yyyy") : <span>Pick a date</span>}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={date}
+                  onSelect={(newDate) => newDate && setDate(newDate)}
+                  initialFocus
+                  className="pointer-events-auto"
+                />
+              </PopoverContent>
+            </Popover>
           </div>
 
           <div className="space-y-2">
