@@ -132,16 +132,6 @@ const Index = () => {
                       </div>
                     ))}
                   </div>
-                  <div className="text-center mt-8">
-                    <Button
-                      onClick={() => navigate("/auth")}
-                      variant="secondary"
-                      size="lg"
-                      className="text-lg h-12 px-8"
-                    >
-                      {t("getStartedNow")}
-                    </Button>
-                  </div>
                 </div>
               </CardContent>
             </Card>
