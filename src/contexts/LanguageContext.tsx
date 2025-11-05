@@ -291,7 +291,7 @@ const translations = {
     failedToParse: "فشل تحليل المعاملة",
     transactionParsed: "تم التحليل! راجع واحفظ.",
     pleaseFillRequired: "يرجى ملء جميع الحقول المطلوبة",
-    pasteBankSMSTooltip: "الصق رسالة البنك لاستخراج المعاملة",
+    pasteBankSMSTooltip: "الصق رسالة البنك لاستخراج المعلومات",
     
     // Categories
     food: "طعام",
