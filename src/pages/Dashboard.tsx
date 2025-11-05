@@ -30,6 +30,7 @@ const Dashboard = () => {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [loading, setLoading] = useState(true);
   const [isParsing, setIsParsing] = useState(false);
+  const [showTooltip, setShowTooltip] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -208,10 +209,13 @@ const Dashboard = () => {
         {/* Paste Bank SMS Button */}
         <div className="flex justify-center -mt-2 mb-2">
           <TooltipProvider delayDuration={200}>
-            <Tooltip>
+            <Tooltip open={showTooltip} onOpenChange={setShowTooltip}>
               <TooltipTrigger asChild>
                 <Button
                   onClick={handlePasteFromClipboard}
+                  onMouseEnter={() => setShowTooltip(true)}
+                  onMouseLeave={() => setShowTooltip(false)}
+                  onTouchStart={() => setShowTooltip(true)}
                   disabled={isParsing}
                   size="icon"
                   className="h-16 w-16 rounded-full bg-gradient-primary shadow-lg hover:shadow-xl transition-all active:scale-95"
