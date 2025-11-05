@@ -3,6 +3,7 @@ import { DashboardNav } from "@/components/DashboardNav";
 import { TransactionList } from "@/components/TransactionList";
 import { NavigationTabs } from "@/components/NavigationTabs";
 import { NetSpendableCard } from "@/components/NetSpendableCard";
+import { SpendingPieChart } from "@/components/SpendingPieChart";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -236,6 +237,9 @@ const Dashboard = () => {
             </Tooltip>
           </TooltipProvider>
         </div>
+
+        {/* Spending by Category Chart */}
+        <SpendingPieChart transactions={transactions} />
 
         {/* Recent Transactions */}
         <TransactionList

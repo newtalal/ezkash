@@ -17,7 +17,7 @@ interface Transaction {
 
 interface SpendingPieChartProps {
   transactions: Transaction[];
-  salaryDate: number;
+  salaryDate?: number;
 }
 
 type RangeType = 'current' | 'last' | 'last30';
@@ -33,7 +33,7 @@ const COLORS = [
   'hsl(var(--accent))',
 ];
 
-export const SpendingPieChart = ({ transactions, salaryDate }: SpendingPieChartProps) => {
+export const SpendingPieChart = ({ transactions, salaryDate = 20 }: SpendingPieChartProps) => {
   const { t, language } = useLanguage();
   const [range, setRange] = useState<RangeType>('current');
 
