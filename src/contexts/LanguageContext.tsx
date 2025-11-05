@@ -99,6 +99,22 @@ const translations = {
     pasteBankSMSTooltip: "Paste Bank SMS to extract transaction",
     manageCategories: "Manage Categories",
     
+    // Encouragement & Charts
+    spendingByCategory: "Spending by Category",
+    thisCycle: "This Cycle",
+    lastCycle: "Last Cycle",
+    last30Days: "Last 30 Days",
+    exportCSV: "Export CSV",
+    noExpensesInRange: "No expenses in this range yet. Log your first expense to see insights.",
+    noDataToExport: "No data to export",
+    exportSuccess: "CSV exported successfully",
+    encouragementMessages: "Encouragement Messages",
+    encouragementDescription: "Get motivating tips after logging expenses",
+    showEncouragementMessages: "Show encouragement messages",
+    encouragementEnabled: "Encouragement messages enabled",
+    encouragementDisabled: "Encouragement messages disabled",
+    failedToUpdateSettings: "Failed to update settings",
+    
     // Categories
     food: "Food",
     transport: "Transport",
@@ -294,6 +310,22 @@ const translations = {
     pleaseFillRequired: "يرجى ملء جميع الحقول المطلوبة",
     pasteBankSMSTooltip: "الصق رسالة البنك لاستخراج المعلومات",
     manageCategories: "التحكم بالفئات",
+    
+    // Encouragement & Charts
+    spendingByCategory: "المصروفات حسب الفئة",
+    thisCycle: "الدورة الحالية",
+    lastCycle: "الدورة السابقة",
+    last30Days: "آخر 30 يوم",
+    exportCSV: "تصدير CSV",
+    noExpensesInRange: "لا توجد مصروفات في هذه الفترة. أضف أول مصروف لعرض التحليلات.",
+    noDataToExport: "لا توجد بيانات للتصدير",
+    exportSuccess: "تم تصدير CSV بنجاح",
+    encouragementMessages: "رسائل التشجيع",
+    encouragementDescription: "احصل على نصائح تحفيزية بعد تسجيل المصروفات",
+    showEncouragementMessages: "إظهار رسائل التشجيع",
+    encouragementEnabled: "تم تفعيل رسائل التشجيع",
+    encouragementDisabled: "تم تعطيل رسائل التشجيع",
+    failedToUpdateSettings: "فشل تحديث الإعدادات",
     
     // Categories
     food: "طعام",
