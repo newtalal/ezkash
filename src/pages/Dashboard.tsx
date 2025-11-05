@@ -207,7 +207,7 @@ const Dashboard = () => {
 
         {/* Paste Bank SMS Button */}
         <div className="flex justify-center -mt-2 mb-2">
-          <TooltipProvider>
+          <TooltipProvider delayDuration={200}>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
@@ -219,8 +219,15 @@ const Dashboard = () => {
                   <Clipboard className="h-6 w-6" />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent>
-                <p>Paste Bank SMS to extract transaction</p>
+              <TooltipContent 
+                side="right" 
+                className="bg-primary text-primary-foreground px-4 py-3 text-sm font-medium shadow-xl border-none animate-fade-in"
+                sideOffset={12}
+              >
+                <p className="flex items-center gap-2">
+                  <span className="text-lg">📱</span>
+                  Paste Bank SMS to extract transaction
+                </p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
