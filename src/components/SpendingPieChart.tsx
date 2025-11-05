@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -35,9 +35,9 @@ const COLORS = [
 
 export const SpendingPieChart = ({ transactions, salaryDate = 20 }: SpendingPieChartProps) => {
   const { t, language } = useLanguage();
-  const [range, setRange] = useState<RangeType>('current');
+  const [range, setRange] = React.useState<RangeType>('current');
 
-  const chartData = useMemo(() => {
+  const chartData = React.useMemo(() => {
     let startDate: Date;
     let endDate: Date;
 
