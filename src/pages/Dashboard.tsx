@@ -5,6 +5,7 @@ import { NavigationTabs } from "@/components/NavigationTabs";
 import { NetSpendableCard } from "@/components/NetSpendableCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { TrendingDown, Wallet, Clipboard } from "lucide-react";
 import { Account } from "@/components/AccountsOverview";
 import { useToast } from "@/hooks/use-toast";
@@ -206,14 +207,23 @@ const Dashboard = () => {
 
         {/* Paste Bank SMS Button */}
         <div className="flex justify-center -mt-2 mb-2">
-          <Button
-            onClick={handlePasteFromClipboard}
-            disabled={isParsing}
-            size="icon"
-            className="h-16 w-16 rounded-full bg-gradient-primary shadow-lg hover:shadow-xl transition-all active:scale-95"
-          >
-            <Clipboard className="h-6 w-6" />
-          </Button>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  onClick={handlePasteFromClipboard}
+                  disabled={isParsing}
+                  size="icon"
+                  className="h-16 w-16 rounded-full bg-gradient-primary shadow-lg hover:shadow-xl transition-all active:scale-95"
+                >
+                  <Clipboard className="h-6 w-6" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Paste Bank SMS to extract transaction</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
 
         {/* Recent Transactions */}
