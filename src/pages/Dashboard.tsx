@@ -5,9 +5,7 @@ import { NavigationTabs } from "@/components/NavigationTabs";
 import { NetSpendableCard } from "@/components/NetSpendableCard";
 import { SpendingPieChart } from "@/components/SpendingPieChart";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { TrendingDown, Wallet, Clipboard } from "lucide-react";
+import { TrendingDown, Wallet } from "lucide-react";
 import { Account } from "@/components/AccountsOverview";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -30,8 +28,6 @@ const Dashboard = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isParsing, setIsParsing] = useState(false);
-  const [showTooltip, setShowTooltip] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -108,42 +104,6 @@ const Dashboard = () => {
     }
   };
 
-  const handlePasteFromClipboard = async () => {
-    setIsParsing(true);
-    try {
-      const clipboardText = await navigator.clipboard.readText();
-      
-      if (!clipboardText.trim()) {
-        toast.error("Clipboard is empty. Please copy bank SMS first.");
-        setIsParsing(false);
-        return;
-      }
-
-      const { data, error } = await supabase.functions.invoke('parse-transaction', {
-        body: { transactionText: clipboardText }
-      });
-
-      if (error) {
-        console.error("Error parsing transaction:", error);
-        toast.error("Failed to parse transaction");
-        setIsParsing(false);
-        return;
-      }
-
-      if (data) {
-        toast.success("Transaction extracted! Please go to Expenses to add it.");
-        setIsParsing(false);
-      }
-    } catch (error: any) {
-      console.error("Error:", error);
-      if (error.name === 'NotAllowedError' || error.message?.includes('permission')) {
-        toast.error("Clipboard not accessible. Please use the Expenses page.");
-      } else {
-        toast.error("Failed to read clipboard. Please use the Expenses page.");
-      }
-      setIsParsing(false);
-    }
-  };
 
   // Calculate summary stats
   const totalSpendable = accounts
@@ -205,37 +165,6 @@ const Dashboard = () => {
           </Card>
 
           <NetSpendableCard totalSpendable={totalSpendable} />
-        </div>
-
-        {/* Paste Bank SMS Button */}
-        <div className="flex justify-center -mt-2 mb-2">
-          <TooltipProvider delayDuration={200}>
-            <Tooltip open={showTooltip} onOpenChange={setShowTooltip}>
-              <TooltipTrigger asChild>
-                <Button
-                  onClick={handlePasteFromClipboard}
-                  onMouseEnter={() => setShowTooltip(true)}
-                  onMouseLeave={() => setShowTooltip(false)}
-                  onTouchStart={() => setShowTooltip(true)}
-                  disabled={isParsing}
-                  size="icon"
-                  className="h-16 w-16 rounded-full bg-gradient-primary shadow-lg hover:shadow-xl transition-all active:scale-95"
-                >
-                  <Clipboard className="h-6 w-6" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent 
-                side="right" 
-                className="bg-primary text-primary-foreground px-4 py-3 text-sm font-medium shadow-xl border-none animate-fade-in"
-                sideOffset={12}
-              >
-                <p className="flex items-center gap-2">
-                  <span className="text-lg">📱</span>
-                  {t("pasteBankSMSTooltip")}
-                </p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
         </div>
 
         {/* Spending by Category Chart */}
