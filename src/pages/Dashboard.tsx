@@ -4,11 +4,13 @@ import { TransactionList } from "@/components/TransactionList";
 import { NavigationTabs } from "@/components/NavigationTabs";
 import { NetSpendableCard } from "@/components/NetSpendableCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { TrendingDown, Wallet } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { TrendingDown, Wallet, Clipboard } from "lucide-react";
 import { Account } from "@/components/AccountsOverview";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export interface Transaction {
   id: string;
@@ -21,11 +23,12 @@ export interface Transaction {
 }
 
 const Dashboard = () => {
-  const { toast } = useToast();
+  const { toast: toastHook } = useToast();
   const { t } = useLanguage();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isParsing, setIsParsing] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -88,17 +91,54 @@ const Dashboard = () => {
       if (error) throw error;
 
       setTransactions(transactions.filter(t => t.id !== id));
-      toast({
+      toastHook({
         title: "Transaction Deleted",
         description: "The transaction has been removed successfully",
       });
     } catch (error) {
       console.error('Error deleting transaction:', error);
-      toast({
+      toastHook({
         title: "Error",
         description: "Failed to delete transaction",
         variant: "destructive",
       });
+    }
+  };
+
+  const handlePasteFromClipboard = async () => {
+    setIsParsing(true);
+    try {
+      const clipboardText = await navigator.clipboard.readText();
+      
+      if (!clipboardText.trim()) {
+        toast.error("Clipboard is empty. Please copy bank SMS first.");
+        setIsParsing(false);
+        return;
+      }
+
+      const { data, error } = await supabase.functions.invoke('parse-transaction', {
+        body: { transactionText: clipboardText }
+      });
+
+      if (error) {
+        console.error("Error parsing transaction:", error);
+        toast.error("Failed to parse transaction");
+        setIsParsing(false);
+        return;
+      }
+
+      if (data) {
+        toast.success("Transaction extracted! Please go to Expenses to add it.");
+        setIsParsing(false);
+      }
+    } catch (error: any) {
+      console.error("Error:", error);
+      if (error.name === 'NotAllowedError' || error.message?.includes('permission')) {
+        toast.error("Clipboard not accessible. Please use the Expenses page.");
+      } else {
+        toast.error("Failed to read clipboard. Please use the Expenses page.");
+      }
+      setIsParsing(false);
     }
   };
 
@@ -164,8 +204,20 @@ const Dashboard = () => {
           <NetSpendableCard totalSpendable={totalSpendable} />
         </div>
 
+        {/* Paste Bank SMS Button */}
+        <div className="flex justify-center -mt-2 mb-2">
+          <Button
+            onClick={handlePasteFromClipboard}
+            disabled={isParsing}
+            size="icon"
+            className="h-16 w-16 rounded-full bg-gradient-primary shadow-lg hover:shadow-xl transition-all active:scale-95"
+          >
+            <Clipboard className="h-6 w-6" />
+          </Button>
+        </div>
+
         {/* Recent Transactions */}
-        <TransactionList 
+        <TransactionList
           transactions={transactions.slice(0, 10)}
           onDelete={deleteTransaction}
         />
