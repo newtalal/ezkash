@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Settings, Trash2, Plus } from "lucide-react";
 import { toast } from "sonner";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface CategoryManagerProps {
   categories: string[];
@@ -30,6 +31,7 @@ interface CategoryManagerProps {
 }
 
 export const CategoryManager = ({ categories, onCategoriesChange }: CategoryManagerProps) => {
+  const { t } = useLanguage();
   const [newCategory, setNewCategory] = useState("");
   const [emoji, setEmoji] = useState("");
   const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null);
@@ -72,7 +74,7 @@ export const CategoryManager = ({ categories, onCategoriesChange }: CategoryMana
       <SheetTrigger asChild>
         <Button variant="outline" size="sm" className="gap-2">
           <Settings className="w-4 h-4" />
-          Manage Categories
+          {t("manageCategories")}
         </Button>
       </SheetTrigger>
       <SheetContent className="flex flex-col">

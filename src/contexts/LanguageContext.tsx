@@ -97,6 +97,7 @@ const translations = {
     transactionParsed: "Transaction parsed! Review and submit.",
     pleaseFillRequired: "Please fill in all required fields",
     pasteBankSMSTooltip: "Paste Bank SMS to extract transaction",
+    manageCategories: "Manage Categories",
     
     // Categories
     food: "Food",
@@ -292,6 +293,7 @@ const translations = {
     transactionParsed: "تم التحليل! راجع واحفظ.",
     pleaseFillRequired: "يرجى ملء جميع الحقول المطلوبة",
     pasteBankSMSTooltip: "الصق رسالة البنك لاستخراج المعلومات",
+    manageCategories: "التحكم بالفئات",
     
     // Categories
     food: "طعام",
