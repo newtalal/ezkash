@@ -263,6 +263,7 @@ export type Database = {
       user_settings: {
         Row: {
           created_at: string
+          encouragement_enabled: boolean
           id: string
           monthly_budget: number
           salary_date: number
@@ -271,6 +272,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          encouragement_enabled?: boolean
           id?: string
           monthly_budget?: number
           salary_date?: number
@@ -279,6 +281,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          encouragement_enabled?: boolean
           id?: string
           monthly_budget?: number
           salary_date?: number
