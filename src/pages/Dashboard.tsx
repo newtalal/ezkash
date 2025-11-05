@@ -230,7 +230,7 @@ const Dashboard = () => {
               >
                 <p className="flex items-center gap-2">
                   <span className="text-lg">📱</span>
-                  Paste Bank SMS to extract transaction
+                  {t("pasteBankSMSTooltip")}
                 </p>
               </TooltipContent>
             </Tooltip>

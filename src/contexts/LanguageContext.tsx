@@ -96,6 +96,7 @@ const translations = {
     failedToParse: "Failed to parse transaction",
     transactionParsed: "Transaction parsed! Review and submit.",
     pleaseFillRequired: "Please fill in all required fields",
+    pasteBankSMSTooltip: "Paste Bank SMS to extract transaction",
     
     // Categories
     food: "Food",
@@ -290,6 +291,7 @@ const translations = {
     failedToParse: "فشل تحليل المعاملة",
     transactionParsed: "تم التحليل! راجع واحفظ.",
     pleaseFillRequired: "يرجى ملء جميع الحقول المطلوبة",
+    pasteBankSMSTooltip: "الصق رسالة البنك لاستخراج المعاملة",
     
     // Categories
     food: "طعام",
