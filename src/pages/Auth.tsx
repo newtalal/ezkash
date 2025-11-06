@@ -60,7 +60,23 @@ const Auth = () => {
     if (mode === "signup" || mode === "signin") {
       setActiveTab(mode);
     }
-  }, [searchParams]);
+
+    // Check for existing session and redirect if logged in
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        navigate("/dashboard");
+      }
+    };
+    checkSession();
+
+    // Load remembered email if exists
+    const rememberedEmail = localStorage.getItem("rememberedEmail");
+    if (rememberedEmail) {
+      setEmail(rememberedEmail);
+      setRememberMe(true);
+    }
+  }, [searchParams, navigate]);
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -149,6 +165,13 @@ const Auth = () => {
       // Update last login timestamp
       if (data.user) {
         await supabase.rpc('update_last_login');
+      }
+
+      // Handle remember me functionality
+      if (rememberMe) {
+        localStorage.setItem("rememberedEmail", validated.email);
+      } else {
+        localStorage.removeItem("rememberedEmail");
       }
 
       toast.success("Signed in successfully!");
