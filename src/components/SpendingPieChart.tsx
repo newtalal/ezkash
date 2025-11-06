@@ -170,16 +170,16 @@ export const SpendingPieChart = ({ transactions, salaryDate = 20 }: SpendingPieC
           </div>
         ) : (
           <div className="space-y-4">
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={400}>
               <PieChart>
                 <Pie
                   data={chartData.data}
                   cx="50%"
-                  cy="50%"
+                  cy="45%"
                   labelLine={false}
                   label={({ percent }) => `${percent.toFixed(1)}%`}
-                  outerRadius={100}
-                  innerRadius={60}
+                  outerRadius={80}
+                  innerRadius={50}
                   fill="#8884d8"
                   dataKey="value"
                 >
@@ -189,9 +189,10 @@ export const SpendingPieChart = ({ transactions, salaryDate = 20 }: SpendingPieC
                 </Pie>
                 <Tooltip content={<CustomTooltip />} />
                 <Legend 
-                  layout="vertical" 
-                  align={language === 'ar' ? 'left' : 'right'}
-                  verticalAlign="middle"
+                  layout="horizontal" 
+                  align="center"
+                  verticalAlign="bottom"
+                  wrapperStyle={{ paddingTop: '20px' }}
                   formatter={(value) => value}
                 />
               </PieChart>
