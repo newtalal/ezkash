@@ -2,6 +2,7 @@ import { DashboardNav } from "@/components/DashboardNav";
 import { NavigationTabs } from "@/components/NavigationTabs";
 import { LanguageSettings } from "@/components/LanguageSettings";
 import { AccountSettings } from "@/components/AccountSettings";
+import { ExportExpenses } from "@/components/ExportExpenses";
 
 const Settings = () => {
   return (
@@ -13,6 +14,7 @@ const Settings = () => {
           <LanguageSettings />
           <AccountSettings />
         </div>
+        <ExportExpenses />
       </main>
     </div>
   );

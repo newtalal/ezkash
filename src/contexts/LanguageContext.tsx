@@ -222,6 +222,14 @@ const translations = {
     startAddingExpenses: "Start adding expenses to track your commitments",
     search: "Search",
     searchExpenses: "Search expenses...",
+    
+    // Export
+    exportAllExpenses: "Export all expenses (Excel)",
+    exportToExcel: "Export to Excel",
+    exportDescription: "Downloads all your expenses as an Excel file.",
+    exporting: "Preparing...",
+    exportSuccessExcel: "Excel exported successfully.",
+    exportFailed: "Export failed. Please try again.",
   },
   ar: {
     // Navigation
@@ -434,6 +442,14 @@ const translations = {
     startAddingExpenses: "ابدأ بإضافة المصروفات لتتبع التزاماتك",
     search: "بحث",
     searchExpenses: "البحث عن المصروفات...",
+    
+    // Export
+    exportAllExpenses: "تصدير جميع المصروفات (إكسل)",
+    exportToExcel: "تصدير إلى إكسل",
+    exportDescription: "تنزيل جميع مصروفاتك كملف إكسل.",
+    exporting: "جارٍ التحضير...",
+    exportSuccessExcel: "تم تصدير ملف الإكسل بنجاح.",
+    exportFailed: "فشل التصدير. يرجى المحاولة مرة أخرى.",
   },
 };
 
