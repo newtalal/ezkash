@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { DashboardNav } from "@/components/DashboardNav";
 import { TransactionList } from "@/components/TransactionList";
+import { EditTransactionDialog } from "@/components/EditTransactionDialog";
 import { NavigationTabs } from "@/components/NavigationTabs";
 import { NetSpendableCard } from "@/components/NetSpendableCard";
 import { SpendingPieChart } from "@/components/SpendingPieChart";
@@ -28,6 +29,9 @@ const Dashboard = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [loading, setLoading] = useState(true);
+  const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [categories, setCategories] = useState<string[]>([]);
 
   useEffect(() => {
     fetchData();
@@ -73,6 +77,16 @@ const Dashboard = () => {
           isSpendable: a.is_spendable
         })));
       }
+
+      // Fetch categories
+      const { data: categoriesData } = await supabase
+        .from('categories')
+        .select('name')
+        .eq('user_id', user.id);
+
+      if (categoriesData) {
+        setCategories(categoriesData.map(c => c.name));
+      }
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
@@ -102,6 +116,15 @@ const Dashboard = () => {
         variant: "destructive",
       });
     }
+  };
+
+  const handleEditTransaction = (transaction: Transaction) => {
+    setEditingTransaction(transaction);
+    setShowEditDialog(true);
+  };
+
+  const handleTransactionUpdated = () => {
+    fetchData();
   };
 
 
@@ -174,6 +197,16 @@ const Dashboard = () => {
         <TransactionList
           transactions={transactions.slice(0, 10)}
           onDelete={deleteTransaction}
+          onEdit={handleEditTransaction}
+        />
+
+        {/* Edit Transaction Dialog */}
+        <EditTransactionDialog
+          transaction={editingTransaction}
+          open={showEditDialog}
+          onOpenChange={setShowEditDialog}
+          onTransactionUpdated={handleTransactionUpdated}
+          categories={categories}
         />
       </main>
     </div>

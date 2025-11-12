@@ -230,6 +230,11 @@ const translations = {
     exporting: "Preparing...",
     exportSuccessExcel: "Excel exported successfully.",
     exportFailed: "Export failed. Please try again.",
+    editTransaction: "Edit Transaction",
+    updateTransactionDetails: "Update the transaction details below.",
+    transactionUpdated: "Transaction updated successfully",
+    saveChanges: "Save Changes",
+    saving: "Saving...",
   },
   ar: {
     // Navigation
@@ -450,6 +455,11 @@ const translations = {
     exporting: "جارٍ التحضير...",
     exportSuccessExcel: "تم تصدير ملف الإكسل بنجاح.",
     exportFailed: "فشل التصدير. يرجى المحاولة مرة أخرى.",
+    editTransaction: "تعديل المعاملة",
+    updateTransactionDetails: "تحديث تفاصيل المعاملة أدناه.",
+    transactionUpdated: "تم تحديث المعاملة بنجاح",
+    saveChanges: "حفظ التغييرات",
+    saving: "جاري الحفظ...",
   },
 };
 

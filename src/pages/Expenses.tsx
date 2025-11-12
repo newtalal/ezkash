@@ -3,6 +3,7 @@ import { DashboardNav } from "@/components/DashboardNav";
 import { NavigationTabs } from "@/components/NavigationTabs";
 import { TransactionEntry } from "@/components/TransactionEntry";
 import { TransactionList } from "@/components/TransactionList";
+import { EditTransactionDialog } from "@/components/EditTransactionDialog";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -26,6 +27,8 @@ const Expenses = () => {
   const [categories, setCategories] = useState<string[]>(defaultCategories);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
+  const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
+  const [showEditDialog, setShowEditDialog] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -194,6 +197,15 @@ const Expenses = () => {
     }
   };
 
+  const handleEditTransaction = (transaction: Transaction) => {
+    setEditingTransaction(transaction);
+    setShowEditDialog(true);
+  };
+
+  const handleTransactionUpdated = () => {
+    fetchData();
+  };
+
   if (loading) {
     return (
       <div className="min-h-dvh bg-background w-full max-w-full overflow-x-hidden">
@@ -219,6 +231,16 @@ const Expenses = () => {
         <TransactionList 
           transactions={transactions}
           onDelete={deleteTransaction}
+          onEdit={handleEditTransaction}
+        />
+
+        {/* Edit Transaction Dialog */}
+        <EditTransactionDialog
+          transaction={editingTransaction}
+          open={showEditDialog}
+          onOpenChange={setShowEditDialog}
+          onTransactionUpdated={handleTransactionUpdated}
+          categories={categories}
         />
       </main>
     </div>
