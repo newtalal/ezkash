@@ -57,9 +57,7 @@ export const DashboardNav = () => {
       <div className="w-full max-w-7xl mx-auto px-3 sm:px-4">
         <div className="flex items-center justify-between h-14 sm:h-16">
           <div className="flex items-center gap-2 sm:gap-3">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-primary rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg">
-              <Wallet className="w-4 h-4 sm:w-5 sm:h-5 text-primary-foreground" />
-            </div>
+            <img src="/icon-192.png" alt="EzKash" className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl shadow-lg" />
             <div>
               <h1 className="text-lg sm:text-xl font-bold text-foreground">EzKash</h1>
               <p className="text-[10px] sm:text-xs text-muted-foreground hidden xs:block">{t("trackEveryDinar")}</p>

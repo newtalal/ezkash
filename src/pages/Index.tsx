@@ -40,9 +40,7 @@ const Index = () => {
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-primary rounded-xl flex items-center justify-center shadow-lg">
-                <Wallet className="w-5 h-5 text-primary-foreground" />
-              </div>
+              <img src="/icon-192.png" alt="EzKash" className="w-10 h-10 rounded-xl shadow-lg" />
               <div>
                 <h1 className="text-xl font-bold text-foreground">EzKash</h1>
                 <p className="text-xs text-muted-foreground">{t("trackEveryDinar")}</p>
