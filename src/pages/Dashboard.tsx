@@ -96,6 +96,23 @@ const Dashboard = () => {
 
   const deleteTransaction = async (id: string) => {
     try {
+      const transaction = transactions.find(t => t.id === id);
+      if (!transaction) return;
+
+      // Find the account to return money to
+      const account = accounts.find(a => a.name === transaction.paymentMethod);
+      
+      // Return money to account if it exists
+      if (account) {
+        const { error: accountError } = await supabase
+          .from('accounts')
+          .update({ balance: Number(account.balance) + Number(transaction.amount) })
+          .eq('id', account.id);
+
+        if (accountError) throw accountError;
+      }
+
+      // Delete the transaction
       const { error } = await supabase
         .from('transactions')
         .delete()
@@ -103,7 +120,16 @@ const Dashboard = () => {
 
       if (error) throw error;
 
+      // Update local state
       setTransactions(transactions.filter(t => t.id !== id));
+      if (account) {
+        setAccounts(accounts.map(a => 
+          a.id === account.id 
+            ? { ...a, balance: Number(a.balance) + Number(transaction.amount) }
+            : a
+        ));
+      }
+
       toastHook({
         title: "Transaction Deleted",
         description: "The transaction has been removed successfully",

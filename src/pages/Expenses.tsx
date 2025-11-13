@@ -175,6 +175,31 @@ const Expenses = () => {
 
   const deleteTransaction = async (id: string) => {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const transaction = transactions.find(t => t.id === id);
+      if (!transaction) return;
+
+      // Fetch accounts to return money
+      const { data: accountsData } = await supabase
+        .from('accounts')
+        .select('*')
+        .eq('user_id', user.id);
+
+      if (accountsData) {
+        const account = accountsData.find(a => a.name === transaction.paymentMethod);
+        
+        // Return money to account if it exists
+        if (account) {
+          await supabase
+            .from('accounts')
+            .update({ balance: Number(account.balance) + Number(transaction.amount) })
+            .eq('id', account.id);
+        }
+      }
+
+      // Delete the transaction
       const { error } = await supabase
         .from('transactions')
         .delete()
