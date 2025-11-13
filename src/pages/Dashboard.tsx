@@ -74,7 +74,8 @@ const Dashboard = () => {
           balance: Number(a.balance),
           iconType: a.icon_type,
           color: a.color,
-          isSpendable: a.is_spendable
+          isSpendable: a.is_spendable,
+          sortOrder: a.sort_order || 0
         })));
       }
 
