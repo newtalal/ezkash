@@ -4,10 +4,27 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Wallet, CreditCard, PiggyBank, Shield, Pencil, Trash2, Plus, Check, X } from "lucide-react";
+import { Wallet, CreditCard, PiggyBank, Shield, Pencil, Trash2, Plus, Check, X, GripVertical } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 export interface Account {
   id: string;
@@ -16,6 +33,7 @@ export interface Account {
   iconType: string;
   color: string;
   isSpendable: boolean;
+  sortOrder: number;
 }
 
 const getIcon = (iconType: string) => {
@@ -26,6 +44,140 @@ const getIcon = (iconType: string) => {
     shield: <Shield className="w-5 h-5" />,
   };
   return icons[iconType] || <Wallet className="w-5 h-5" />;
+};
+
+interface SortableItemProps {
+  account: Account;
+  editingId: string | null;
+  editForm: { name: string; balance: string };
+  onEdit: (account: Account) => void;
+  onSaveEdit: (id: string) => void;
+  onCancelEdit: () => void;
+  onToggleSpendable: (id: string) => void;
+  onDelete: (id: string) => void;
+  setEditForm: (form: { name: string; balance: string }) => void;
+  t: (key: string) => string;
+}
+
+const SortableItem = ({
+  account,
+  editingId,
+  editForm,
+  onEdit,
+  onSaveEdit,
+  onCancelEdit,
+  onToggleSpendable,
+  onDelete,
+  setEditForm,
+  t,
+}: SortableItemProps) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: account.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className="p-2.5 sm:p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
+    >
+      {editingId === account.id ? (
+        <div className="space-y-3">
+          <div>
+            <Label htmlFor={`edit-name-${account.id}`} className="text-xs">{t("name")}</Label>
+            <Input
+              id={`edit-name-${account.id}`}
+              value={editForm.name}
+              onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+              className="h-8"
+            />
+          </div>
+          <div>
+            <Label htmlFor={`edit-balance-${account.id}`} className="text-xs">{t("balance")} ({t("kwd")})</Label>
+            <Input
+              id={`edit-balance-${account.id}`}
+              type="text"
+              inputMode="decimal"
+              value={editForm.balance}
+              onChange={(e) => setEditForm({ ...editForm, balance: e.target.value })}
+              className="h-8"
+            />
+          </div>
+          <div className="flex gap-2">
+            <Button onClick={() => onSaveEdit(account.id)} size="sm" className="flex-1">
+              <Check className="w-4 h-4 mr-1" />
+              {t("save")}
+            </Button>
+            <Button onClick={onCancelEdit} size="sm" variant="outline" className="flex-1">
+              <X className="w-4 h-4 mr-1" />
+              {t("cancel")}
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <>
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <button
+                {...attributes}
+                {...listeners}
+                className="touch-none cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground"
+              >
+                <GripVertical className="w-4 h-4" />
+              </button>
+              <div className={`${account.color}`}>{getIcon(account.iconType)}</div>
+              <div>
+                <p className="font-medium text-xs sm:text-sm">{account.name}</p>
+                {account.isSpendable && (
+                  <p className="text-[10px] text-muted-foreground">{t("spendable")}</p>
+                )}
+              </div>
+            </div>
+            <p className="font-semibold text-sm sm:text-base">{account.balance.toFixed(3)}</p>
+          </div>
+          <div className="flex items-center justify-between gap-2 pt-2 border-t">
+            <div className="flex items-center gap-2">
+              <Label htmlFor={`spendable-${account.id}`} className="text-xs">{t("spendable")}</Label>
+              <Switch
+                id={`spendable-${account.id}`}
+                checked={account.isSpendable}
+                onCheckedChange={() => onToggleSpendable(account.id)}
+              />
+            </div>
+            <div className="flex gap-2">
+              <Button
+                onClick={() => onEdit(account)}
+                size="sm"
+                variant="ghost"
+                className="h-8 px-2"
+              >
+                <Pencil className="w-3 h-3" />
+              </Button>
+              <Button
+                onClick={() => onDelete(account.id)}
+                size="sm"
+                variant="ghost"
+                className="h-8 px-2 text-destructive hover:text-destructive"
+              >
+                <Trash2 className="w-3 h-3" />
+              </Button>
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
 };
 
 export const AccountsOverview = () => {
@@ -56,7 +208,8 @@ export const AccountsOverview = () => {
       const { data, error } = await supabase
         .from('accounts')
         .select('*')
-        .eq('user_id', user.id);
+        .eq('user_id', user.id)
+        .order('sort_order', { ascending: true });
 
       if (error) throw error;
 
@@ -67,13 +220,66 @@ export const AccountsOverview = () => {
           balance: Number(a.balance),
           iconType: a.icon_type,
           color: a.color,
-          isSpendable: a.is_spendable
+          isSpendable: a.is_spendable,
+          sortOrder: a.sort_order || 0
         })));
       }
     } catch (error) {
       console.error('Error fetching accounts:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      const oldIndex = accounts.findIndex((acc) => acc.id === active.id);
+      const newIndex = accounts.findIndex((acc) => acc.id === over.id);
+
+      const newAccounts = arrayMove(accounts, oldIndex, newIndex);
+      
+      // Update local state immediately for smooth UX
+      setAccounts(newAccounts);
+
+      // Update sort_order in database
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        // Update all accounts with new sort orders
+        const updates = newAccounts.map((acc, index) => 
+          supabase
+            .from('accounts')
+            .update({ sort_order: index + 1 })
+            .eq('id', acc.id)
+            .eq('user_id', user.id)
+        );
+
+        await Promise.all(updates);
+
+        toast({
+          title: t("accountUpdated"),
+          description: "Account order saved",
+        });
+      } catch (error) {
+        console.error('Error updating account order:', error);
+        // Revert on error
+        fetchAccounts();
+        toast({
+          title: "Error",
+          description: "Failed to save account order",
+          variant: "destructive",
+        });
+      }
     }
   };
 
@@ -204,6 +410,17 @@ export const AccountsOverview = () => {
         return;
       }
 
+      // Get the highest sort_order for this user
+      const { data: maxOrderData } = await supabase
+        .from('accounts')
+        .select('sort_order')
+        .eq('user_id', user.id)
+        .order('sort_order', { ascending: false })
+        .limit(1)
+        .single();
+
+      const nextSortOrder = (maxOrderData?.sort_order || 0) + 1;
+
       const { data, error } = await supabase
         .from('accounts')
         .insert({
@@ -212,7 +429,8 @@ export const AccountsOverview = () => {
           balance,
           icon_type: newAccount.iconType,
           color: newAccount.color,
-          is_spendable: newAccount.isSpendable
+          is_spendable: newAccount.isSpendable,
+          sort_order: nextSortOrder
         })
         .select()
         .single();
@@ -226,7 +444,8 @@ export const AccountsOverview = () => {
           balance: Number(data.balance),
           iconType: data.icon_type,
           color: data.color,
-          isSpendable: data.is_spendable
+          isSpendable: data.is_spendable,
+          sortOrder: data.sort_order || accounts.length + 1
         };
 
         setAccounts([...accounts, account]);
@@ -320,92 +539,34 @@ export const AccountsOverview = () => {
           </Card>
         )}
 
-        <div className="space-y-2 sm:space-y-3">
-          {accounts.map((account) => (
-            <div
-              key={account.id}
-              className="p-2.5 sm:p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
-            >
-              {editingId === account.id ? (
-                <div className="space-y-3">
-                  <div>
-                    <Label htmlFor={`edit-name-${account.id}`} className="text-xs">{t("name")}</Label>
-                    <Input
-                      id={`edit-name-${account.id}`}
-                      value={editForm.name}
-                      onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                      className="h-8"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor={`edit-balance-${account.id}`} className="text-xs">{t("balance")} ({t("kwd")})</Label>
-                    <Input
-                      id={`edit-balance-${account.id}`}
-                      type="text"
-                      inputMode="decimal"
-                      value={editForm.balance}
-                      onChange={(e) => setEditForm({ ...editForm, balance: e.target.value })}
-                      className="h-8"
-                    />
-                  </div>
-                  <div className="flex gap-2">
-                    <Button onClick={() => handleSaveEdit(account.id)} size="sm" className="flex-1">
-                      <Check className="w-4 h-4 mr-1" />
-                      {t("save")}
-                    </Button>
-                    <Button onClick={handleCancelEdit} size="sm" variant="outline" className="flex-1">
-                      <X className="w-4 h-4 mr-1" />
-                      {t("cancel")}
-                    </Button>
-                  </div>
-                </div>
-              ) : (
-                <>
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2 sm:gap-3">
-                      <div className={`${account.color}`}>{getIcon(account.iconType)}</div>
-                      <div>
-                        <p className="font-medium text-xs sm:text-sm">{account.name}</p>
-                        {account.isSpendable && (
-                          <p className="text-[10px] text-muted-foreground">{t("spendable")}</p>
-                        )}
-                      </div>
-                    </div>
-                    <p className="font-semibold text-sm sm:text-base">{account.balance.toFixed(3)}</p>
-                  </div>
-                  <div className="flex items-center justify-between gap-2 pt-2 border-t">
-                    <div className="flex items-center gap-2">
-                      <Label htmlFor={`spendable-${account.id}`} className="text-xs">{t("spendable")}</Label>
-                      <Switch
-                        id={`spendable-${account.id}`}
-                        checked={account.isSpendable}
-                        onCheckedChange={() => handleToggleSpendable(account.id)}
-                      />
-                    </div>
-                    <div className="flex gap-2">
-                      <Button
-                        onClick={() => handleEdit(account)}
-                        size="sm"
-                        variant="ghost"
-                        className="h-8 px-2"
-                      >
-                        <Pencil className="w-3 h-3" />
-                      </Button>
-                      <Button
-                        onClick={() => handleDelete(account.id)}
-                        size="sm"
-                        variant="ghost"
-                        className="h-8 px-2 text-destructive hover:text-destructive"
-                      >
-                        <Trash2 className="w-3 h-3" />
-                      </Button>
-                    </div>
-                  </div>
-                </>
-              )}
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext
+            items={accounts.map(a => a.id)}
+            strategy={verticalListSortingStrategy}
+          >
+            <div className="space-y-2 sm:space-y-3">
+              {accounts.map((account) => (
+                <SortableItem
+                  key={account.id}
+                  account={account}
+                  editingId={editingId}
+                  editForm={editForm}
+                  onEdit={handleEdit}
+                  onSaveEdit={handleSaveEdit}
+                  onCancelEdit={handleCancelEdit}
+                  onToggleSpendable={handleToggleSpendable}
+                  onDelete={handleDelete}
+                  setEditForm={setEditForm}
+                  t={t}
+                />
+              ))}
             </div>
-          ))}
-        </div>
+          </SortableContext>
+        </DndContext>
           </>
         )}
       </CardContent>
