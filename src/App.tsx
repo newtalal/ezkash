@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LanguageProvider } from "@/contexts/LanguageContext";
+import { AppThemeInitializer } from "@/hooks/useAppTheme";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import ForgotPassword from "./pages/ForgotPassword";
@@ -26,6 +27,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <LanguageProvider>
         <TooltipProvider>
+          <AppThemeInitializer />
           <Toaster />
           <Sonner />
           <BrowserRouter>

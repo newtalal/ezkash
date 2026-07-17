@@ -2,6 +2,7 @@ import { DashboardNav } from "@/components/DashboardNav";
 import { NavigationTabs } from "@/components/NavigationTabs";
 import { LanguageSettings } from "@/components/LanguageSettings";
 import { AccountSettings } from "@/components/AccountSettings";
+import { AppearanceSettings } from "@/components/AppearanceSettings";
 import { ExportExpenses } from "@/components/ExportExpenses";
 
 const Settings = () => {
@@ -13,6 +14,7 @@ const Settings = () => {
         <div className="grid gap-4 sm:gap-6 md:grid-cols-2">
           <LanguageSettings />
           <AccountSettings />
+          <AppearanceSettings />
         </div>
         <ExportExpenses />
       </main>
