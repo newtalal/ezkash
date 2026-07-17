@@ -33,7 +33,7 @@ interface TransactionListProps {
 
 export const TransactionList = ({ transactions, onDelete, onEdit }: TransactionListProps) => {
   const { t } = useLanguage();
-  
+
   const sortedTransactions = transactions
     .sort((a, b) => b.date.getTime() - a.date.getTime());
 
@@ -64,7 +64,72 @@ export const TransactionList = ({ transactions, onDelete, onEdit }: TransactionL
           </div>
         ) : (
           <div className="rounded-lg border border-border overflow-hidden">
-            <div className="w-full overflow-x-auto">
+            {/* Mobile layout */}
+            <div className="block sm:hidden">
+              {sortedTransactions.map((transaction) => (
+                <div
+                  key={transaction.id}
+                  className="border-b border-border last:border-b-0 px-4 py-4"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-3">
+                        <p className="font-medium truncate">{transaction.category}</p>
+                        <p className="font-semibold text-destructive shrink-0">
+                          -{transaction.amount.toFixed(3)} {t("kwd")}
+                        </p>
+                      </div>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        {format(transaction.date, "dd-MM-yyyy")} • {transaction.paymentMethod}
+                      </p>
+                      {transaction.description && (
+                        <p className="text-sm text-muted-foreground truncate mt-0.5">
+                          {transaction.description}
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-1 shrink-0">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => onEdit(transaction)}
+                        className="h-9 w-9 text-muted-foreground hover:text-primary"
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-9 w-9 text-muted-foreground hover:text-destructive"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Delete Transaction?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Are you sure you want to delete this transaction? This action cannot be undone.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => onDelete(transaction.id)}>
+                              Delete
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop layout */}
+            <div className="hidden sm:block">
               <Table className="w-full">
                 <TableHeader>
                   <TableRow className="bg-muted/50">
