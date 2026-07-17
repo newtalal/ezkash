@@ -172,3 +172,57 @@ All colors MUST be HSL.
     --tw-space-x-reverse: 1;
   }
 }
+
+.warm-theme {
+  --background: 39 35% 91%;
+  --foreground: 0 0% 10%;
+  --card: 38 26% 88%;
+  --card-foreground: 0 0% 10%;
+  --popover: 39 28% 90%;
+  --popover-foreground: 0 0% 10%;
+  --primary: 180 42% 30%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 38 19% 81%;
+  --secondary-foreground: 0 0% 10%;
+  --muted: 38 22% 84%;
+  --muted-foreground: 30 6% 40%;
+  --accent: 180 42% 30%;
+  --accent-foreground: 0 0% 100%;
+  --destructive: 1 78% 56%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 36 15% 78%;
+  --input: 38 26% 88%;
+  --ring: 180 42% 30%;
+  --radius: 0.75rem;
+  --chart-1: 180 42% 30%;
+  --chart-2: 195 45% 38%;
+  --chart-3: 30 25% 55%;
+  --chart-4: 43 74% 55%;
+  --chart-5: 27 70% 55%;
+  --sidebar-background: 39 28% 90%;
+  --sidebar-foreground: 0 0% 10%;
+  --sidebar-primary: 180 42% 30%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 38 19% 81%;
+  --sidebar-accent-foreground: 0 0% 10%;
+  --sidebar-border: 36 15% 78%;
+  --sidebar-ring: 180 42% 30%;
+  color-scheme: light;
+}
+
+.warm-theme body {
+  background-image:
+    radial-gradient(ellipse 80% 60% at 50% -20%, hsl(180 42% 30% / 0.06), transparent),
+    radial-gradient(ellipse 60% 40% at 80% 80%, hsl(30 35% 60% / 0.10), transparent) !important;
+}
+
+.warm-theme [data-slot="card"],
+.warm-theme .bg-card {
+  box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.08), -2px -2px 8px rgba(255, 255, 255, 0.65);
+}
+
+.warm-theme input,
+.warm-theme textarea,
+.warm-theme select {
+  box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.08), inset -1px -1px 3px rgba(255, 255, 255, 0.6);
+}
