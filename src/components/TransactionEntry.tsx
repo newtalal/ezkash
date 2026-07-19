@@ -33,6 +33,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { SearchableSelect } from "@/components/ui/searchable-select";
+import { CalculatorInput } from "@/components/ui/calculator-input";
+import { CURRENCIES, DEFAULT_CURRENCY, convertToKwd, roundKwd } from "@/lib/currencies";
+import { transactionSchema, formatZodError } from "@/lib/validation/schemas";
 
 interface TransactionEntryProps {
   onAddTransaction: (transaction: Omit<Transaction, "id">) => void;
@@ -57,6 +61,8 @@ export const TransactionEntry = ({ onAddTransaction, categories, onCategoriesCha
     category: string;
   } | null>(null);
   const [accounts, setAccounts] = useState<Array<{ id: string; name: string; balance: number }>>([]);
+  const [currency, setCurrency] = useState<string>(DEFAULT_CURRENCY);
+  const [showCurrency, setShowCurrency] = useState(false);
 
   useEffect(() => {
     fetchAccounts();
@@ -183,17 +189,21 @@ export const TransactionEntry = ({ onAddTransaction, categories, onCategoriesCha
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    const expenseAmount = parseFloat(amount);
-    
-    // Validation
-    if (!amount || isNaN(expenseAmount) || expenseAmount <= 0) {
-      toast.error("Please enter a valid amount");
-      return;
-    }
-    
-    if (!category || !paymentMethod) {
-      toast.error(t("pleaseFillRequired"));
+
+    const parsedAmount = parseFloat(amount);
+    const rawAmount = isNaN(parsedAmount) ? 0 : parsedAmount;
+    const expenseAmount = roundKwd(convertToKwd(rawAmount, currency));
+
+    const result = transactionSchema.safeParse({
+      amount: expenseAmount,
+      category,
+      paymentMethod,
+      description,
+      date,
+    });
+
+    if (!result.success) {
+      toast.error(formatZodError(result.error));
       return;
     }
 
@@ -241,6 +251,8 @@ export const TransactionEntry = ({ onAddTransaction, categories, onCategoriesCha
     setDescription("");
     setPaymentMethod("");
     setDate(new Date());
+    setCurrency(DEFAULT_CURRENCY);
+    setShowCurrency(false);
     
     toast.success(t("transactionAdded"));
   };
@@ -318,24 +330,47 @@ export const TransactionEntry = ({ onAddTransaction, categories, onCategoriesCha
 
         <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="amount" className="text-sm">{t("amount")} ({t("kwd")})</Label>
-            <Input
-              id="amount"
-              type="text"
-              inputMode="decimal"
-              pattern="[0-9]*\.?[0-9]*"
-              placeholder="0.00"
-              value={amount}
-              onChange={(e) => {
-                const value = e.target.value;
-                // Only allow numbers and one decimal point
-                if (value === '' || /^\d*\.?\d{0,3}$/.test(value)) {
-                  setAmount(value);
-                }
-              }}
-              className="text-xl sm:text-2xl font-semibold h-12 sm:h-14"
-              required
-            />
+            <div className="flex items-center justify-between">
+              <Label htmlFor="amount" className="text-sm">
+                {t("amount")} ({currency})
+              </Label>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="h-7 px-2 text-xs text-muted-foreground"
+                onClick={() => setShowCurrency((s) => !s)}
+              >
+                {showCurrency ? "Hide currency" : "Change currency"}
+              </Button>
+            </div>
+            <div className="flex gap-2">
+              <div className="flex-1">
+                <CalculatorInput
+                  id="amount"
+                  value={amount}
+                  onChange={setAmount}
+                  className="text-xl sm:text-2xl font-semibold h-12 sm:h-14"
+                  required
+                />
+              </div>
+              {showCurrency && (
+                <div className="w-28">
+                  <SearchableSelect
+                    value={currency}
+                    onValueChange={setCurrency}
+                    options={CURRENCIES.map((c) => ({ value: c.code, label: c.code }))}
+                    placeholder="KWD"
+                    searchThreshold={4}
+                  />
+                </div>
+              )}
+            </div>
+            {currency !== "KWD" && amount && !isNaN(parseFloat(amount)) && (
+              <p className="text-xs text-muted-foreground">
+                ≈ {roundKwd(convertToKwd(parseFloat(amount), currency)).toFixed(3)} KWD (approx.)
+              </p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -346,40 +381,32 @@ export const TransactionEntry = ({ onAddTransaction, categories, onCategoriesCha
                 onCategoriesChange={onCategoriesChange}
               />
             </div>
-            <Select value={category} onValueChange={setCategory} required>
-              <SelectTrigger id="category">
-                <SelectValue placeholder={t("selectCategory")} />
-              </SelectTrigger>
-              <SelectContent className="bg-popover max-h-[300px]">
-                {categories.map((cat) => (
-                  <SelectItem key={cat} value={cat}>
-                    {cat}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <SearchableSelect
+              id="category"
+              value={category}
+              onValueChange={setCategory}
+              placeholder={t("selectCategory")}
+              searchPlaceholder={t("selectCategory")}
+              options={categories.map((cat) => ({ value: cat, label: cat }))}
+            />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="payment" className="text-sm">{t("paymentMethod")}</Label>
-            <Select value={paymentMethod} onValueChange={setPaymentMethod} required>
-              <SelectTrigger id="payment">
-                <SelectValue placeholder={t("selectPaymentMethod")} />
-              </SelectTrigger>
-              <SelectContent className="bg-popover">
-                {accounts.length > 0 ? (
-                  accounts.map((account) => (
-                    <SelectItem key={account.id} value={account.name}>
-                      {account.name} ({account.balance.toFixed(3)} {t("kwd")})
-                    </SelectItem>
-                  ))
-                ) : (
-                  <SelectItem value="no-accounts" disabled>
-                    No accounts available. Please create an account first.
-                  </SelectItem>
-                )}
-              </SelectContent>
-            </Select>
+            <SearchableSelect
+              id="payment"
+              value={paymentMethod}
+              onValueChange={setPaymentMethod}
+              placeholder={t("selectPaymentMethod")}
+              options={
+                accounts.length > 0
+                  ? accounts.map((a) => ({
+                      value: a.name,
+                      label: `${a.name} (${a.balance.toFixed(3)} ${t("kwd")})`,
+                    }))
+                  : [{ value: "no-accounts", label: "No accounts available", disabled: true }]
+              }
+            />
           </div>
 
           <div className="space-y-2">
