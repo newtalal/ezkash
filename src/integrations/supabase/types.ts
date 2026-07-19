@@ -101,6 +101,33 @@ export type Database = {
         }
         Relationships: []
       }
+      category_budgets: {
+        Row: {
+          category: string
+          created_at: string
+          id: string
+          monthly_limit: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          id?: string
+          monthly_limit: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          id?: string
+          monthly_limit?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       fixed_expenses: {
         Row: {
           amount: number
@@ -126,6 +153,33 @@ export type Database = {
           description?: string
           id?: string
           is_paid?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      merchant_category_rules: {
+        Row: {
+          category: string
+          created_at: string
+          id: string
+          merchant_keyword: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          id?: string
+          merchant_keyword: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          id?: string
+          merchant_keyword?: string
           updated_at?: string
           user_id?: string
         }
