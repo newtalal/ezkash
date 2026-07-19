@@ -18,6 +18,7 @@ import Accounts from "./pages/Accounts";
 import Expenses from "./pages/Expenses";
 import FixedExpenses from "./pages/FixedExpenses";
 import OneTimeExpenses from "./pages/OneTimeExpenses";
+import Categories from "./pages/Categories";
 import NotFound from "./pages/NotFound";
 
 function App() {
@@ -42,6 +43,7 @@ function App() {
               <Route path="/expenses" element={<Expenses />} />
               <Route path="/fixed-expenses" element={<FixedExpenses />} />
               <Route path="/one-time-expenses" element={<OneTimeExpenses />} />
+              <Route path="/categories" element={<Categories />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/profile-security" element={<ProfileSecurity />} />
               <Route path="*" element={<NotFound />} />
