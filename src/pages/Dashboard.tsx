@@ -14,6 +14,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { UpdateAnnouncementDialog } from "@/components/UpdateAnnouncementDialog";
 import { LimitWarningBanner } from "@/components/LimitWarningBanner";
+import { FilterBar, applyFilters, defaultFilters, type FilterState } from "@/components/FilterBar";
+import { useState as useReactState } from "react";
 
 export interface Transaction {
   id: string;
@@ -34,6 +36,7 @@ const Dashboard = () => {
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [categories, setCategories] = useState<string[]>([]);
+  const [filters, setFilters] = useState<FilterState>(defaultFilters);
 
   useEffect(() => {
     fetchData();
@@ -225,8 +228,14 @@ const Dashboard = () => {
         <SpendingPieChart transactions={transactions} />
 
         {/* Recent Transactions */}
+        <FilterBar
+          value={filters}
+          onChange={setFilters}
+          categories={categories}
+          paymentMethods={accounts.map((a) => a.name)}
+        />
         <TransactionList
-          transactions={transactions.slice(0, 10)}
+          transactions={applyFilters(transactions, filters).slice(0, 10)}
           onDelete={deleteTransaction}
           onEdit={handleEditTransaction}
         />
