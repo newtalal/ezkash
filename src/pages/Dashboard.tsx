@@ -13,6 +13,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { UpdateAnnouncementDialog } from "@/components/UpdateAnnouncementDialog";
+import { LimitWarningBanner } from "@/components/LimitWarningBanner";
 
 export interface Transaction {
   id: string;
@@ -185,6 +186,7 @@ const Dashboard = () => {
       <NavigationTabs />
       <UpdateAnnouncementDialog />
       <main className="w-full max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-6">
+        <LimitWarningBanner />
         {/* Summary Cards */}
         <div className="grid gap-4 sm:gap-6 md:grid-cols-3">
           <Card className="shadow-card">
