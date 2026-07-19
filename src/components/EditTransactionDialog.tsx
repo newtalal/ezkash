@@ -1,15 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -31,6 +23,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { SearchableSelect } from "@/components/ui/searchable-select";
+import { CalculatorInput } from "@/components/ui/calculator-input";
+import { transactionSchema, formatZodError } from "@/lib/validation/schemas";
 
 interface EditTransactionDialogProps {
   transaction: Transaction | null;
@@ -101,14 +96,16 @@ export const EditTransactionDialog = ({
 
     const newAmount = parseFloat(amount);
 
-    // Validation
-    if (!amount || isNaN(newAmount) || newAmount <= 0) {
-      toast.error("Please enter a valid amount");
-      return;
-    }
+    const result = transactionSchema.safeParse({
+      amount: isNaN(newAmount) ? 0 : newAmount,
+      category,
+      paymentMethod,
+      description,
+      date,
+    });
 
-    if (!category || !paymentMethod) {
-      toast.error(t("pleaseFillRequired"));
+    if (!result.success) {
+      toast.error(formatZodError(result.error));
       return;
     }
 
@@ -198,19 +195,10 @@ export const EditTransactionDialog = ({
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="edit-amount">{t("amount")} ({t("kwd")})</Label>
-            <Input
+            <CalculatorInput
               id="edit-amount"
-              type="text"
-              inputMode="decimal"
-              pattern="[0-9]*\.?[0-9]*"
-              placeholder="0.00"
               value={amount}
-              onChange={(e) => {
-                const value = e.target.value;
-                if (value === '' || /^\d*\.?\d{0,3}$/.test(value)) {
-                  setAmount(value);
-                }
-              }}
+              onChange={setAmount}
               className="text-xl font-semibold"
               required
             />
@@ -218,40 +206,31 @@ export const EditTransactionDialog = ({
 
           <div className="space-y-2">
             <Label htmlFor="edit-category">{t("category")}</Label>
-            <Select value={category} onValueChange={setCategory} required>
-              <SelectTrigger id="edit-category">
-                <SelectValue placeholder={t("selectCategory")} />
-              </SelectTrigger>
-              <SelectContent className="bg-popover max-h-[300px]">
-                {categories.map((cat) => (
-                  <SelectItem key={cat} value={cat}>
-                    {cat}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <SearchableSelect
+              id="edit-category"
+              value={category}
+              onValueChange={setCategory}
+              placeholder={t("selectCategory")}
+              options={categories.map((cat) => ({ value: cat, label: cat }))}
+            />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="edit-payment">{t("paymentMethod")}</Label>
-            <Select value={paymentMethod} onValueChange={setPaymentMethod} required>
-              <SelectTrigger id="edit-payment">
-                <SelectValue placeholder={t("selectPaymentMethod")} />
-              </SelectTrigger>
-              <SelectContent className="bg-popover">
-                {accounts.length > 0 ? (
-                  accounts.map((account) => (
-                    <SelectItem key={account.id} value={account.name}>
-                      {account.name} ({account.balance.toFixed(3)} {t("kwd")})
-                    </SelectItem>
-                  ))
-                ) : (
-                  <SelectItem value="no-accounts" disabled>
-                    No accounts available
-                  </SelectItem>
-                )}
-              </SelectContent>
-            </Select>
+            <SearchableSelect
+              id="edit-payment"
+              value={paymentMethod}
+              onValueChange={setPaymentMethod}
+              placeholder={t("selectPaymentMethod")}
+              options={
+                accounts.length > 0
+                  ? accounts.map((a) => ({
+                      value: a.name,
+                      label: `${a.name} (${a.balance.toFixed(3)} ${t("kwd")})`,
+                    }))
+                  : [{ value: "no-accounts", label: "No accounts available", disabled: true }]
+              }
+            />
           </div>
 
           <div className="space-y-2">
