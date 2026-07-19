@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { UpdateAnnouncementDialog } from "@/components/UpdateAnnouncementDialog";
 
 export interface Transaction {
   id: string;
@@ -182,6 +183,7 @@ const Dashboard = () => {
     <div className="min-h-dvh bg-background w-full max-w-full overflow-x-hidden pb-[calc(env(safe-area-inset-bottom)+16px)]">
       <DashboardNav />
       <NavigationTabs />
+      <UpdateAnnouncementDialog />
       <main className="w-full max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-6">
         {/* Summary Cards */}
         <div className="grid gap-4 sm:gap-6 md:grid-cols-3">
