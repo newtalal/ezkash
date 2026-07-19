@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from "react-router-dom";
-import { LayoutDashboard, Settings, Receipt, Wallet, CalendarClock, CalendarCheck, Tag } from "lucide-react";
+import { LayoutDashboard, Settings, Receipt, Wallet, CalendarClock, CalendarCheck, Tag, BarChart3 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useEffect, useRef } from "react";
 
@@ -16,6 +16,7 @@ export const NavigationTabs = () => {
     { to: "/one-time-expenses", icon: CalendarCheck, label: t("oneTimeExpenses") },
     { to: "/accounts", icon: Wallet, label: t("accounts") },
     { to: "/categories", icon: Tag, label: "Categories" },
+    { to: "/reports", icon: BarChart3, label: "Reports" },
     { to: "/settings", icon: Settings, label: t("settings") },
   ];
 
