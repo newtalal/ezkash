@@ -37,6 +37,7 @@ import { SearchableSelect } from "@/components/ui/searchable-select";
 import { CalculatorInput } from "@/components/ui/calculator-input";
 import { CURRENCIES, DEFAULT_CURRENCY, convertToKwd, roundKwd } from "@/lib/currencies";
 import { transactionSchema, formatZodError } from "@/lib/validation/schemas";
+import { useMerchantRules } from "@/hooks/useMerchantRules";
 
 interface TransactionEntryProps {
   onAddTransaction: (transaction: Omit<Transaction, "id">) => void;
@@ -63,10 +64,22 @@ export const TransactionEntry = ({ onAddTransaction, categories, onCategoriesCha
   const [accounts, setAccounts] = useState<Array<{ id: string; name: string; balance: number }>>([]);
   const [currency, setCurrency] = useState<string>(DEFAULT_CURRENCY);
   const [showCurrency, setShowCurrency] = useState(false);
+  const { matchRule, upsertRule } = useMerchantRules();
 
   useEffect(() => {
     fetchAccounts();
   }, []);
+
+  // Auto-suggest category based on remembered merchant rules
+  useEffect(() => {
+    if (!description.trim()) return;
+    if (category) return; // don't override manual pick
+    const rule = matchRule(description);
+    if (rule && categories.includes(rule.category)) {
+      setCategory(rule.category);
+    }
+     
+  }, [description, matchRule, categories]);
 
   const fetchAccounts = async () => {
     try {
@@ -244,6 +257,11 @@ export const TransactionEntry = ({ onAddTransaction, categories, onCategoriesCha
       paymentMethod,
       date: date,
     });
+
+    // Learn merchant → category association (only if new)
+    if (description.trim() && category) {
+      upsertRule(description, category).catch(() => {});
+    }
 
     // Reset form
     setAmount("");
